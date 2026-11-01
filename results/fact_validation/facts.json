@@ -1,0 +1,722 @@
+[
+  {
+    "id": "Q151005_fact_1",
+    "battle_qid": "Q151005",
+    "battle_name": "Battle of Leipzig",
+    "category": "metadata",
+    "field_path": "metadata.location.name",
+    "value": "Leipzig",
+    "fact": "Battle of Leipzig took place at Leipzig."
+  },
+  {
+    "id": "Q151005_fact_2",
+    "battle_qid": "Q151005",
+    "battle_name": "Battle of Leipzig",
+    "category": "participants",
+    "field_path": "participants[0].side",
+    "value": "Coalition",
+    "fact": "Coalition participated in Battle of Leipzig."
+  },
+  {
+    "id": "Q151005_fact_3",
+    "battle_qid": "Q151005",
+    "battle_name": "Battle of Leipzig",
+    "category": "outcome",
+    "field_path": "outcome.result_type",
+    "value": "strategic and tactical",
+    "fact": "The result type of Battle of Leipzig was strategic and tactical."
+  },
+  {
+    "id": "Q151005_fact_4",
+    "battle_qid": "Q151005",
+    "battle_name": "Battle of Leipzig",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[2]",
+    "value": "village",
+    "fact": "village terrain was relevant to Battle of Leipzig."
+  },
+  {
+    "id": "Q38789_fact_1",
+    "battle_qid": "Q38789",
+    "battle_name": "Battle of Stalingrad",
+    "category": "metadata",
+    "field_path": "metadata.location.name",
+    "value": "Stalingrad (now Volgograd)",
+    "fact": "Battle of Stalingrad took place at Stalingrad (now Volgograd)."
+  },
+  {
+    "id": "Q38789_fact_2",
+    "battle_qid": "Q38789",
+    "battle_name": "Battle of Stalingrad",
+    "category": "participants",
+    "field_path": "participants[1].commanders[3]",
+    "value": "Nikolay Vatutin",
+    "fact": "Nikolay Vatutin was a commander at Battle of Stalingrad."
+  },
+  {
+    "id": "Q38789_fact_3",
+    "battle_qid": "Q38789",
+    "battle_name": "Battle of Stalingrad",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "Soviet victory",
+    "fact": "The recorded result of Battle of Stalingrad was Soviet victory."
+  },
+  {
+    "id": "Q38789_fact_4",
+    "battle_qid": "Q38789",
+    "battle_name": "Battle of Stalingrad",
+    "category": "military_facets",
+    "field_path": "military_facets.weapons_or_units[5]",
+    "value": "snipers",
+    "fact": "snipers was used or deployed during Battle of Stalingrad."
+  },
+  {
+    "id": "Q48314_fact_1",
+    "battle_qid": "Q48314",
+    "battle_name": "Battle of Waterloo",
+    "category": "metadata",
+    "field_path": "metadata.location.country",
+    "value": "United Kingdom of the Netherlands",
+    "fact": "Battle of Waterloo took place in United Kingdom of the Netherlands."
+  },
+  {
+    "id": "Q48314_fact_2",
+    "battle_qid": "Q48314",
+    "battle_name": "Battle of Waterloo",
+    "category": "participants",
+    "field_path": "participants[2].commanders[2]",
+    "value": "General Zieten",
+    "fact": "General Zieten was a commander at Battle of Waterloo."
+  },
+  {
+    "id": "Q48314_fact_3",
+    "battle_qid": "Q48314",
+    "battle_name": "Battle of Waterloo",
+    "category": "outcome",
+    "field_path": "outcome.winner",
+    "value": "Seventh Coalition",
+    "fact": "Seventh Coalition won Battle of Waterloo."
+  },
+  {
+    "id": "Q48314_fact_4",
+    "battle_qid": "Q48314",
+    "battle_name": "Battle of Waterloo",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[4]",
+    "value": "villages",
+    "fact": "villages terrain was relevant to Battle of Waterloo."
+  },
+  {
+    "id": "Q200056_fact_1",
+    "battle_qid": "Q200056",
+    "battle_name": "Battle of Zama",
+    "category": "metadata",
+    "field_path": "metadata.time_period.start_date.date_label",
+    "value": "202 BC",
+    "fact": "Battle of Zama began on 202 BC."
+  },
+  {
+    "id": "Q200056_fact_2",
+    "battle_qid": "Q200056",
+    "battle_name": "Battle of Zama",
+    "category": "participants",
+    "field_path": "participants[1].side",
+    "value": "Carthage",
+    "fact": "Carthage participated in Battle of Zama."
+  },
+  {
+    "id": "Q200056_fact_3",
+    "battle_qid": "Q200056",
+    "battle_name": "Battle of Zama",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "decisive victory",
+    "fact": "The recorded result of Battle of Zama was decisive victory."
+  },
+  {
+    "id": "Q200056_fact_4",
+    "battle_qid": "Q200056",
+    "battle_name": "Battle of Zama",
+    "category": "military_facets",
+    "field_path": "military_facets.weapons_or_units[1]",
+    "value": "cavalry",
+    "fact": "cavalry was used or deployed during Battle of Zama."
+  },
+  {
+    "id": "Q2038907_fact_1",
+    "battle_qid": "Q2038907",
+    "battle_name": "Battle of Wuhan",
+    "category": "metadata",
+    "field_path": "metadata.location.region",
+    "value": "Hubei Province",
+    "fact": "Battle of Wuhan took place in the region of Hubei Province."
+  },
+  {
+    "id": "Q2038907_fact_2",
+    "battle_qid": "Q2038907",
+    "battle_name": "Battle of Wuhan",
+    "category": "participants",
+    "field_path": "participants[0].commanders[6]",
+    "value": "Shang Zhen",
+    "fact": "Shang Zhen was a commander at Battle of Wuhan."
+  },
+  {
+    "id": "Q2038907_fact_3",
+    "battle_qid": "Q2038907",
+    "battle_name": "Battle of Wuhan",
+    "category": "outcome",
+    "field_path": "outcome.result_type",
+    "value": "tactical victory",
+    "fact": "The result type of Battle of Wuhan was tactical victory."
+  },
+  {
+    "id": "Q2038907_fact_4",
+    "battle_qid": "Q2038907",
+    "battle_name": "Battle of Wuhan",
+    "category": "military_facets",
+    "field_path": "military_facets.battle_type[0]",
+    "value": "siege",
+    "fact": "siege was a battle type associated with Battle of Wuhan."
+  },
+  {
+    "id": "Q33132_fact_1",
+    "battle_qid": "Q33132",
+    "battle_name": "Battle of Gettysburg",
+    "category": "metadata",
+    "field_path": "metadata.location.name",
+    "value": "Gettysburg",
+    "fact": "Battle of Gettysburg took place at Gettysburg."
+  },
+  {
+    "id": "Q33132_fact_2",
+    "battle_qid": "Q33132",
+    "battle_name": "Battle of Gettysburg",
+    "category": "participants",
+    "field_path": "participants[0].commanders[1]",
+    "value": "Maj. Gen. John F. Reynolds",
+    "fact": "Maj. Gen. John F. Reynolds was a commander at Battle of Gettysburg."
+  },
+  {
+    "id": "Q33132_fact_3",
+    "battle_qid": "Q33132",
+    "battle_name": "Battle of Gettysburg",
+    "category": "outcome",
+    "field_path": "outcome.winner",
+    "value": "Union",
+    "fact": "Union won Battle of Gettysburg."
+  },
+  {
+    "id": "Q33132_fact_4",
+    "battle_qid": "Q33132",
+    "battle_name": "Battle of Gettysburg",
+    "category": "military_facets",
+    "field_path": "military_facets.domain[0]",
+    "value": "land",
+    "fact": "Battle of Gettysburg was fought in the land domain."
+  },
+  {
+    "id": "Q184320_fact_1",
+    "battle_qid": "Q184320",
+    "battle_name": "Battle of Borodino",
+    "category": "metadata",
+    "field_path": "metadata.conflict",
+    "value": "Napoleon's invasion of Russia",
+    "fact": "Battle of Borodino was part of Napoleon's invasion of Russia."
+  },
+  {
+    "id": "Q184320_fact_2",
+    "battle_qid": "Q184320",
+    "battle_name": "Battle of Borodino",
+    "category": "participants",
+    "field_path": "participants[0].strength.total",
+    "value": 128000,
+    "fact": "The reported strength of France at Battle of Borodino was 128000."
+  },
+  {
+    "id": "Q184320_fact_3",
+    "battle_qid": "Q184320",
+    "battle_name": "Battle of Borodino",
+    "category": "outcome",
+    "field_path": "outcome.result_type",
+    "value": "draw",
+    "fact": "The result type of Battle of Borodino was draw."
+  },
+  {
+    "id": "Q184320_fact_4",
+    "battle_qid": "Q184320",
+    "battle_name": "Battle of Borodino",
+    "category": "military_facets",
+    "field_path": "military_facets.special_features[0]",
+    "value": "Raevsky Redoubt",
+    "fact": "Raevsky Redoubt was a special feature of Battle of Borodino."
+  },
+  {
+    "id": "Q200855_fact_1",
+    "battle_qid": "Q200855",
+    "battle_name": "Battle of Vienna",
+    "category": "metadata",
+    "field_path": "metadata.time_period.start_date.date_label",
+    "value": "12 September 1683",
+    "fact": "Battle of Vienna began on 12 September 1683."
+  },
+  {
+    "id": "Q200855_fact_2",
+    "battle_qid": "Q200855",
+    "battle_name": "Battle of Vienna",
+    "category": "participants",
+    "field_path": "participants[1].role",
+    "value": "sieging force",
+    "fact": "Ottoman Empire and vassal states was the sieging force in Battle of Vienna."
+  },
+  {
+    "id": "Q200855_fact_3",
+    "battle_qid": "Q200855",
+    "battle_name": "Battle of Vienna",
+    "category": "outcome",
+    "field_path": "outcome.winner",
+    "value": "Holy Roman Empire and Polish–Lithuanian Commonwealth",
+    "fact": "Holy Roman Empire and Polish–Lithuanian Commonwealth won Battle of Vienna."
+  },
+  {
+    "id": "Q200855_fact_4",
+    "battle_qid": "Q200855",
+    "battle_name": "Battle of Vienna",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[0]",
+    "value": "mountainous",
+    "fact": "mountainous terrain was relevant to Battle of Vienna."
+  },
+  {
+    "id": "Q83224_fact_1",
+    "battle_qid": "Q83224",
+    "battle_name": "Battle of Hastings",
+    "category": "metadata",
+    "field_path": "metadata.time_period.start_date.date_label",
+    "value": "14 October 1066",
+    "fact": "Battle of Hastings began on 14 October 1066."
+  },
+  {
+    "id": "Q83224_fact_2",
+    "battle_qid": "Q83224",
+    "battle_name": "Battle of Hastings",
+    "category": "participants",
+    "field_path": "participants[0].role",
+    "value": "attacker",
+    "fact": "Norman was the attacker in Battle of Hastings."
+  },
+  {
+    "id": "Q83224_fact_3",
+    "battle_qid": "Q83224",
+    "battle_name": "Battle of Hastings",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "decisive Norman victory",
+    "fact": "The recorded result of Battle of Hastings was decisive Norman victory."
+  },
+  {
+    "id": "Q83224_fact_4",
+    "battle_qid": "Q83224",
+    "battle_name": "Battle of Hastings",
+    "category": "military_facets",
+    "field_path": "military_facets.weapons_or_units[0]",
+    "value": "infantry",
+    "fact": "infantry was used or deployed during Battle of Hastings."
+  },
+  {
+    "id": "Q179591_fact_1",
+    "battle_qid": "Q179591",
+    "battle_name": "Battle of Cannae",
+    "category": "metadata",
+    "field_path": "metadata.location.name",
+    "value": "Cannae",
+    "fact": "Battle of Cannae took place at Cannae."
+  },
+  {
+    "id": "Q179591_fact_2",
+    "battle_qid": "Q179591",
+    "battle_name": "Battle of Cannae",
+    "category": "participants",
+    "field_path": "participants[0].strength.label",
+    "value": "40,000–50,000",
+    "fact": "The reported strength of Carthage at Battle of Cannae was 40,000–50,000."
+  },
+  {
+    "id": "Q179591_fact_3",
+    "battle_qid": "Q179591",
+    "battle_name": "Battle of Cannae",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "Carthaginian victory",
+    "fact": "The recorded result of Battle of Cannae was Carthaginian victory."
+  },
+  {
+    "id": "Q179591_fact_4",
+    "battle_qid": "Q179591",
+    "battle_name": "Battle of Cannae",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[0]",
+    "value": "plain",
+    "fact": "plain terrain was relevant to Battle of Cannae."
+  },
+  {
+    "id": "Q31900_fact_1",
+    "battle_qid": "Q31900",
+    "battle_name": "Battle of Marathon",
+    "category": "metadata",
+    "field_path": "metadata.time_period.start_date.date_label",
+    "value": "September 12, 490 BC",
+    "fact": "Battle of Marathon began on September 12, 490 BC."
+  },
+  {
+    "id": "Q31900_fact_2",
+    "battle_qid": "Q31900",
+    "battle_name": "Battle of Marathon",
+    "category": "participants",
+    "field_path": "participants[1].commanders[0]",
+    "value": "Datis",
+    "fact": "Datis was a commander at Battle of Marathon."
+  },
+  {
+    "id": "Q31900_fact_3",
+    "battle_qid": "Q31900",
+    "battle_name": "Battle of Marathon",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "Greek victory",
+    "fact": "The recorded result of Battle of Marathon was Greek victory."
+  },
+  {
+    "id": "Q31900_fact_4",
+    "battle_qid": "Q31900",
+    "battle_name": "Battle of Marathon",
+    "category": "military_facets",
+    "field_path": "military_facets.battle_type[0]",
+    "value": "land battle",
+    "fact": "land battle was a battle type associated with Battle of Marathon."
+  },
+  {
+    "id": "Q188495_fact_1",
+    "battle_qid": "Q188495",
+    "battle_name": "Battle of Agincourt",
+    "category": "metadata",
+    "field_path": "metadata.location.name",
+    "value": "Azincourt",
+    "fact": "Battle of Agincourt took place at Azincourt."
+  },
+  {
+    "id": "Q188495_fact_2",
+    "battle_qid": "Q188495",
+    "battle_name": "Battle of Agincourt",
+    "category": "participants",
+    "field_path": "participants[1].commanders[0]",
+    "value": "Constable Charles I d'Albret",
+    "fact": "Constable Charles I d'Albret was a commander at Battle of Agincourt."
+  },
+  {
+    "id": "Q188495_fact_3",
+    "battle_qid": "Q188495",
+    "battle_name": "Battle of Agincourt",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "English victory",
+    "fact": "The recorded result of Battle of Agincourt was English victory."
+  },
+  {
+    "id": "Q188495_fact_4",
+    "battle_qid": "Q188495",
+    "battle_name": "Battle of Agincourt",
+    "category": "military_facets",
+    "field_path": "military_facets.special_features[1]",
+    "value": "heavy rain creating deep mud that hampered heavily armored knights",
+    "fact": "heavy rain creating deep mud that hampered heavily armored knights was a special feature of Battle of Agincourt."
+  },
+  {
+    "id": "Q134114_fact_1",
+    "battle_qid": "Q134114",
+    "battle_name": "Battle of Austerlitz",
+    "category": "metadata",
+    "field_path": "metadata.conflict",
+    "value": "War of the Third Coalition",
+    "fact": "Battle of Austerlitz was part of War of the Third Coalition."
+  },
+  {
+    "id": "Q134114_fact_2",
+    "battle_qid": "Q134114",
+    "battle_name": "Battle of Austerlitz",
+    "category": "participants",
+    "field_path": "participants[1].commanders[0]",
+    "value": "Emperor Alexander I",
+    "fact": "Emperor Alexander I was a commander at Battle of Austerlitz."
+  },
+  {
+    "id": "Q134114_fact_3",
+    "battle_qid": "Q134114",
+    "battle_name": "Battle of Austerlitz",
+    "category": "outcome",
+    "field_path": "outcome.winner",
+    "value": "France",
+    "fact": "France won Battle of Austerlitz."
+  },
+  {
+    "id": "Q134114_fact_4",
+    "battle_qid": "Q134114",
+    "battle_name": "Battle of Austerlitz",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[0]",
+    "value": "hills",
+    "fact": "hills terrain was relevant to Battle of Austerlitz."
+  },
+  {
+    "id": "Q132568_fact_1",
+    "battle_qid": "Q132568",
+    "battle_name": "Battle of the Somme",
+    "category": "metadata",
+    "field_path": "metadata.location.country",
+    "value": "France",
+    "fact": "Battle of the Somme took place in France."
+  },
+  {
+    "id": "Q132568_fact_2",
+    "battle_qid": "Q132568",
+    "battle_name": "Battle of the Somme",
+    "category": "participants",
+    "field_path": "participants[0].side",
+    "value": "British Empire",
+    "fact": "British Empire participated in Battle of the Somme."
+  },
+  {
+    "id": "Q132568_fact_3",
+    "battle_qid": "Q132568",
+    "battle_name": "Battle of the Somme",
+    "category": "outcome",
+    "field_path": "outcome.result_type",
+    "value": "stalemate",
+    "fact": "The result type of Battle of the Somme was stalemate."
+  },
+  {
+    "id": "Q132568_fact_4",
+    "battle_qid": "Q132568",
+    "battle_name": "Battle of the Somme",
+    "category": "military_facets",
+    "field_path": "military_facets.battle_type[0]",
+    "value": "offensive",
+    "fact": "offensive was a battle type associated with Battle of the Somme."
+  },
+  {
+    "id": "Q180182_fact_1",
+    "battle_qid": "Q180182",
+    "battle_name": "Battle of Iwo Jima",
+    "category": "metadata",
+    "field_path": "metadata.conflict",
+    "value": "World War II",
+    "fact": "Battle of Iwo Jima was part of World War II."
+  },
+  {
+    "id": "Q180182_fact_2",
+    "battle_qid": "Q180182",
+    "battle_name": "Battle of Iwo Jima",
+    "category": "participants",
+    "field_path": "participants[1].commanders[0]",
+    "value": "Lieutenant General Tadamichi Kuribayashi",
+    "fact": "Lieutenant General Tadamichi Kuribayashi was a commander at Battle of Iwo Jima."
+  },
+  {
+    "id": "Q180182_fact_3",
+    "battle_qid": "Q180182",
+    "battle_name": "Battle of Iwo Jima",
+    "category": "outcome",
+    "field_path": "outcome.result_type",
+    "value": "decisive victory",
+    "fact": "The result type of Battle of Iwo Jima was decisive victory."
+  },
+  {
+    "id": "Q180182_fact_4",
+    "battle_qid": "Q180182",
+    "battle_name": "Battle of Iwo Jima",
+    "category": "military_facets",
+    "field_path": "military_facets.special_features[1]",
+    "value": "Navajo code talkers",
+    "fact": "Navajo code talkers was a special feature of Battle of Iwo Jima."
+  },
+  {
+    "id": "Q131969_fact_1",
+    "battle_qid": "Q131969",
+    "battle_name": "Battle of Thermopylae",
+    "category": "metadata",
+    "field_path": "metadata.conflict",
+    "value": "Greco-Persian Wars (Second Persian invasion of Greece)",
+    "fact": "Battle of Thermopylae was part of Greco-Persian Wars (Second Persian invasion of Greece)."
+  },
+  {
+    "id": "Q131969_fact_2",
+    "battle_qid": "Q131969",
+    "battle_name": "Battle of Thermopylae",
+    "category": "participants",
+    "field_path": "participants[1].commanders[0]",
+    "value": "Leonidas I",
+    "fact": "Leonidas I was a commander at Battle of Thermopylae."
+  },
+  {
+    "id": "Q131969_fact_3",
+    "battle_qid": "Q131969",
+    "battle_name": "Battle of Thermopylae",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "Persian victory",
+    "fact": "The recorded result of Battle of Thermopylae was Persian victory."
+  },
+  {
+    "id": "Q131969_fact_4",
+    "battle_qid": "Q131969",
+    "battle_name": "Battle of Thermopylae",
+    "category": "military_facets",
+    "field_path": "military_facets.tactics[1]",
+    "value": "use of terrain as force multiplier",
+    "fact": "use of terrain as force multiplier was used as a tactic during Battle of Thermopylae."
+  },
+  {
+    "id": "Q192660_fact_1",
+    "battle_qid": "Q192660",
+    "battle_name": "Battle of Okinawa",
+    "category": "metadata",
+    "field_path": "metadata.location.region",
+    "value": "Ryukyu Islands",
+    "fact": "Battle of Okinawa took place in the region of Ryukyu Islands."
+  },
+  {
+    "id": "Q192660_fact_2",
+    "battle_qid": "Q192660",
+    "battle_name": "Battle of Okinawa",
+    "category": "participants",
+    "field_path": "participants[1].commanders[2]",
+    "value": "Colonel Hiromichi Yahara",
+    "fact": "Colonel Hiromichi Yahara was a commander at Battle of Okinawa."
+  },
+  {
+    "id": "Q192660_fact_3",
+    "battle_qid": "Q192660",
+    "battle_name": "Battle of Okinawa",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "Allied victory",
+    "fact": "The recorded result of Battle of Okinawa was Allied victory."
+  },
+  {
+    "id": "Q192660_fact_4",
+    "battle_qid": "Q192660",
+    "battle_name": "Battle of Okinawa",
+    "category": "military_facets",
+    "field_path": "military_facets.tactics[5]",
+    "value": "kamikaze attacks",
+    "fact": "kamikaze attacks was used as a tactic during Battle of Okinawa."
+  },
+  {
+    "id": "Q154182_fact_1",
+    "battle_qid": "Q154182",
+    "battle_name": "Battle of Berlin",
+    "category": "metadata",
+    "field_path": "metadata.time_period.start_date.iso_date",
+    "value": "1945-04-16",
+    "fact": "Battle of Berlin began on 1945-04-16."
+  },
+  {
+    "id": "Q154182_fact_2",
+    "battle_qid": "Q154182",
+    "battle_name": "Battle of Berlin",
+    "category": "participants",
+    "field_path": "participants[1].role",
+    "value": "defender",
+    "fact": "Germany was the defender in Battle of Berlin."
+  },
+  {
+    "id": "Q154182_fact_3",
+    "battle_qid": "Q154182",
+    "battle_name": "Battle of Berlin",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "Soviet victory",
+    "fact": "The recorded result of Battle of Berlin was Soviet victory."
+  },
+  {
+    "id": "Q154182_fact_4",
+    "battle_qid": "Q154182",
+    "battle_name": "Battle of Berlin",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[2]",
+    "value": "riverine",
+    "fact": "riverine terrain was relevant to Battle of Berlin."
+  },
+  {
+    "id": "Q153858_fact_1",
+    "battle_qid": "Q153858",
+    "battle_name": "Battle of Tannenberg",
+    "category": "metadata",
+    "field_path": "metadata.time_period.start_date.date_label",
+    "value": "26 August 1914",
+    "fact": "Battle of Tannenberg began on 26 August 1914."
+  },
+  {
+    "id": "Q153858_fact_2",
+    "battle_qid": "Q153858",
+    "battle_name": "Battle of Tannenberg",
+    "category": "participants",
+    "field_path": "participants[0].side",
+    "value": "Germany",
+    "fact": "Germany participated in Battle of Tannenberg."
+  },
+  {
+    "id": "Q153858_fact_3",
+    "battle_qid": "Q153858",
+    "battle_name": "Battle of Tannenberg",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "German victory",
+    "fact": "The recorded result of Battle of Tannenberg was German victory."
+  },
+  {
+    "id": "Q153858_fact_4",
+    "battle_qid": "Q153858",
+    "battle_name": "Battle of Tannenberg",
+    "category": "military_facets",
+    "field_path": "military_facets.terrain[0]",
+    "value": "East Prussian countryside",
+    "fact": "East Prussian countryside terrain was relevant to Battle of Tannenberg."
+  },
+  {
+    "id": "Q173077_fact_1",
+    "battle_qid": "Q173077",
+    "battle_name": "Battle of Tours",
+    "category": "metadata",
+    "field_path": "metadata.location.country",
+    "value": "France",
+    "fact": "Battle of Tours took place in France."
+  },
+  {
+    "id": "Q173077_fact_2",
+    "battle_qid": "Q173077",
+    "battle_name": "Battle of Tours",
+    "category": "participants",
+    "field_path": "participants[1].commanders[0]",
+    "value": "Abd al-Rahman al-Ghafiqi",
+    "fact": "Abd al-Rahman al-Ghafiqi was a commander at Battle of Tours."
+  },
+  {
+    "id": "Q173077_fact_3",
+    "battle_qid": "Q173077",
+    "battle_name": "Battle of Tours",
+    "category": "outcome",
+    "field_path": "outcome.result",
+    "value": "victory",
+    "fact": "The recorded result of Battle of Tours was victory."
+  },
+  {
+    "id": "Q173077_fact_4",
+    "battle_qid": "Q173077",
+    "battle_name": "Battle of Tours",
+    "category": "military_facets",
+    "field_path": "military_facets.special_features[1]",
+    "value": "Frankish forces lacked heavy cavalry",
+    "fact": "Frankish forces lacked heavy cavalry was a special feature of Battle of Tours."
+  }
+]
