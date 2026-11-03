@@ -36,6 +36,7 @@
 \pgfplotsset{compat=1.18} 
 \usepackage{xurl}
 \usepackage{xcolor}
+\selectcolormodel{rgb}
 \usepackage{amssymb}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -49,6 +50,7 @@
 \usepackage{float}
 \usepackage{subcaption}
 \usepackage{listings}
+\usepackage{pdflscape}
 
 \lstdefinestyle{sqlstyle}{
     language=SQL,
@@ -100,9 +102,10 @@
 \RedeclareSectionCommand[beforeskip=1cm,afterskip=2cm]{chapter}
 
 \begin{document}
+\TUDoptions{ttfont=lmodern}
 \raggedbottom
 % Uncomment the following line for the final version!
-\linenumbers
+%\linenumbers
 
 \frontmatter
 

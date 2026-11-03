@@ -3,7 +3,7 @@
 
 \section{Motivation}
 \label{sec:motivation}
-Large Language Models (LLMs) have been widely studied and applied to question-answering tasks across different domains, including finance \citep{sarmah2024hybridrag}, medicine \citep{wang2024llmhealthcare}, law \citep{lai2024llmlaw}, and scientific discovery \citep{zhang2024scientificllm}. For knowledge-intensive tasks, Retrieval-Augmented Generation (RAG) is particularly useful because generation is supported by external evidence rather than relying solely on the model's internal knowledge \citep{lewis2020rag}. However, conventional RAG may be less effective for narrative-rich texts, because it tends to process information at the level of isolated documents or passages and can therefore overlook underlying event structures, temporal development and logical relationships between events \citep{yang2025eventrag}. Moreover, classical RAG is also limited for exhaustive and database-style queries such as \textit{find all battles satisfying condition X}. Such queries would require the RAG system to check this condition across the entire collection of documents, whereas RAG typically retrieves only a small top-$k$ subset of them. These limitations is particularly relevant to domains in which information is organized as complex narratives rather than isolated facts. Movies provide one such example, where adapting LLMs for narrative understanding remains an underexplored challenge \citep{shen2025narrative}. Historical battles represent another domain with rich event and narrative structure. A recent study has shown that simple quantitative statistics alone may fail to capture higher-level tactical patterns and similarities between battles \citep{coulson2023actionclusters}. Instead, meaningful similarities can emerge from the sequences and relationships between battle actions. This suggests that historical battles may benefit from richer representations that capture not only factual attributes but also the development and sequence of events.
+Large Language Models (LLMs) have been widely studied and applied to question-answering tasks across different domains, including finance \citep{sarmah2024hybridrag}, medicine \citep{wang2024llmhealthcare}, law \citep{lai2024llmlaw}, and scientific discovery \citep{zhang2024scientificllm}. For knowledge-intensive tasks, Retrieval-Augmented Generation (RAG) is particularly useful because generation is supported by external evidence rather than relying solely on the model's internal knowledge \citep{lewis2020rag}. However, conventional RAG may be less effective for narrative-rich texts, because it tends to process information at the level of isolated documents or passages and can therefore overlook underlying event structures, temporal development and logical relationships between events \citep{yang2025eventrag}. Moreover, classical RAG is also limited for exhaustive and database-style queries such as \textit{find all battles satisfying condition X}. Such queries would require the RAG system to check this condition across the entire collection of documents, whereas RAG typically retrieves only a small top-$k$ subset of them. These limitations are particularly relevant to domains in which information is organized as complex narratives rather than isolated facts. Movies provide one such example, where adapting LLMs for narrative understanding remains an underexplored challenge \citep{shen2025narrative}. Historical battles represent another domain with rich event and narrative structure. A recent study has shown that simple quantitative statistics alone may fail to capture higher-level tactical patterns and similarities between battles \citep{coulson2023actionclusters}. Instead, meaningful similarities can emerge from the sequences and relationships between battle actions. This suggests that historical battles may benefit from richer representations that capture not only factual attributes but also the development and sequence of events.
 
 In practice, many proprietary and open-weight models indeed struggle with database-style questions in complex narrative domains such as historical battles. As an example, we ask two well-known proprietary models, Gemini \citep{geminiteam2023gemini} and Claude \citep{anthropic2026claude}, several battle-related questions. It is especially interesting to see how these models are able to capture narrative-rich facts about less-known battles. First, we ask a model a question and prohibit any web search. If the model fails to mention relevant battles, we provide the gold labels and ask whether the model recognizes its mistake. Figure~\ref{fig:gemini_initial_response} and Figure~\ref{fig:gemini_followup_response} show the question asked to Gemini 3.6 Flash \citep{google2026gemini}. In this particular example, the model fails to mention two relevant battles, and after allowing it to use web search and explicitly asking about the missing battles, the model recognizes its mistake. Figures~\ref{fig:claude_initial_response} and~\ref{fig:claude_followup_response} demonstrate an analogous example with Claude Sonnet 5.5  \citep{anthropic2026sonnet55}. The situation is similar: the model fails to mention two gold battles, but after enabling web search, it recognizes its mistake. For completeness, we also performed the same test with the open-weight reasoning model GPT-OSS-120B, as shown in Figure~\ref{fig:gpt_oss_fog_query}. Similarly, the model was not able to mention two gold battles. Both queries used for these models have two things in common. First, they have a database-style nature, and second, the relevant battles are relatively obscure and may therefore have been underrepresented in the models’ training corpora. Listings~\ref{lst:naval_query} and~\ref{lst:fog_query} demonstrate how these queries can be represented as SQL-style queries, further illustrating their database-style nature.
 
@@ -115,6 +115,9 @@ The main contributions of this thesis are the following:
 
     \item We evaluate the effect of structured battle representations on LLM-based question answering through both the Oracle-context experiment, where the LLM is provided with a predefined set of candidate battles to choose from, and the end-to-end RAG experiment. We compare a baseline LLM with raw-text-augmented and JSON-augmented configurations and analyze performance across common and rare battles, different query types, and different retrieval depths.
 \end{enumerate}
+
+The source code, knowledge base, and evaluation data are available in the \href{https://github.com/Sandora1933/HybridB}{GitHub repository}.
+
 Our experiments show that structured JSON context is particularly beneficial for rare-battle queries and mainly improves the model’s ability to recover relevant battles. At the same time, the results demonstrate that final end-to-end performance remains strongly dependent on retrieval quality.
 
 \chapter{Related work}
@@ -242,9 +245,10 @@ Apart from the narrative aspect, we additionally define a \texttt{narrative\_pat
 
 In the \texttt{retrieval\_texts} field, compact textual summaries are described. They are generated from the structured battle representation and are designed to support retrieval. Specifically, it contains a \texttt{tactical\_summary}, \texttt{narrative\_summary}, and \texttt{action\_sequence\_summary} that partially duplicate values defined in the narrative field. The initial motivation for introducing the \texttt{retrieval\_texts} field was to provide condensed, semantically informative descriptions of battles that could improve dense retrieval without requiring embedding models to process the entire JSON representation. However, as described later in the Retrieval chapter, our implemented retrieval approach serializes and embeds complete JSON documents without separately extracting or prioritizing these summaries. Therefore, although the generated summaries contribute to the input representation, their independent impact on retrieval and answer generation quality remains unknown.
 
-Finally, we added \texttt{extraction\_metadata} to our representation schema. It stores information about the extraction process and possible uncertainty in the generated battle representation. It contains fields such as \texttt{wikidata\_id}, \texttt{overall\_confidence}, and \texttt{uncertainty\_notes}. The \texttt{field\_confidence} field indicates how reliable the extracted information is and is defined automatically by the filler LLM for most top-level aspects. In addition, \texttt{uncertainty\_notes} is used to mark conflicting or uncertain information from the source. It is especially useful for avoiding the need to force a single value, for instance for troop strength or the number of casualties. It can contain information such as \textit{French total strength estimates range from 198,000 to 225,000.}
+Finally, we added \texttt{extraction\_metadata} to our representation schema. It stores information about the extraction process and possible uncertainty in the generated battle representation. It contains fields such as \texttt{wikidata\_id}, \texttt{overall\_confidence}, and \texttt{uncertainty\_notes}. The \texttt{field\_confidence} field is intended to indicate how reliable the extracted information is for most top-level aspects. However, in the current implementation, the filler LLM is instructed to set both \texttt{overall\_confidence} and \texttt{field\_confidence} values to \texttt{null}. Uncertain or conflicting information from the Wikipedia source is represented through labels, ranges, and the \texttt{uncertainty\_notes} field. This is especially useful for avoiding the need to force a single value, for instance for troop strength or the number of casualties. The field can contain information such as \textit{French total strength estimates range from 198,000 to 225,000.}
 
 The schema fields, their descriptions, and data types are also provided in Table~\ref{tab:battle_schema}.
+
 \begin{table}[!htbp]
 \centering
 \caption{Overview of the structured battle representation schema}
@@ -254,9 +258,9 @@ The schema fields, their descriptions, and data types are also provided in Table
 \renewcommand{\arraystretch}{1.4}
 \setlength{\tabcolsep}{4pt}
 
-\begin{tabularx}{\textwidth}{
+\begin{tabular}{
     >{\RaggedRight\arraybackslash}p{0.13\textwidth}
-    >{\RaggedRight\arraybackslash}X
+    >{\RaggedRight\arraybackslash}p{0.40\textwidth}
     >{\RaggedRight\arraybackslash}p{0.32\textwidth}
     >{\RaggedRight\arraybackslash}p{0.09\textwidth}
 }
@@ -270,7 +274,7 @@ The schema fields, their descriptions, and data types are also provided in Table
 \textbf{Battle ID} &
 \texttt{battle\_id} &
 Unique identifier of the battle instance, typically corresponding
-to its Wikidata QID. &
+to its Wikidata QID&
 String / null \\
 \midrule
 
@@ -285,7 +289,7 @@ Object \\
 \texttt{time\_period},
 \texttt{location},
 \texttt{conflict};
-e.g. \texttt{start\_date},
+ \texttt{start\_date},
 \texttt{end\_date},
 \texttt{country\_modern} &
 Contains basic factual metadata about when and where the battle
@@ -304,7 +308,7 @@ Object \\
 Represents the participating sides and their commanders,
 force size, composition, equipment, casualties, and role
 in the battle. &
-\texttt{Array\textless Object\textgreater} \\
+\texttt{Array}$\langle$\texttt{Object}$\rangle$ \\
 \midrule
 
 \textbf{Outcome} &
@@ -376,12 +380,127 @@ uncertainty. &
 Object \\
 
 \bottomrule
-\end{tabularx}
+\end{tabular}
+
 \end{table}
+
+\section{Wikidata and JSON Schema Correspondence and Coverage}
+In this section, we analyze the structural and semantic correspondence between Wikidata properties and the fields of our JSON representation schema. Figure~\ref{fig:wikidata-json-part1} illustrates the Wikidata property corresponding to each battle aspect together with its coverage. Wikidata property coverage is defined as the percentage of Wikidata battle instances that have property \(P\). Additionally, we describe the corresponding JSON field and its coverage. JSON field coverage for field \(F\) is defined as the percentage of battle records in the local structured knowledge base having a non-empty value for field \(F\). In the final column, we assign a comparison class: \textit{Direct} for closely semantically equivalent properties and fields, \textit{Partial} for related but not identical representations, and \textit{Not applicable} when either Wikidata or our schema does not represent the corresponding battle aspect. The Wikidata battle set contains 18,673 instances, while the local structured knowledge base contains 11,561 battle records. The complete comparison table is available in the root
+directory of the project's
+\href{https://github.com/Sandora1933/HybridB}{GitHub repository}
+as \texttt{wikidata\_json\_comparison.docx}.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[
+        width=\textwidth,
+        height=0.85\textheight,
+        keepaspectratio
+    ]{figures/wikidata_json_part1.png}
+    \caption{Comparison of Wikidata properties and corresponding JSON fields.}
+    \label{fig:wikidata-json-part1}
+\end{figure}
+
+\section{Factual Validation of the JSON Knowledge Base}
+In this section, we additionally assess the source-grounded factual correctness of our generated JSON knowledge base with respect to the corresponding Wikipedia sources. For this purpose, we perform a small-scale validation experiment. We select 20 well-represented battles and sample four facts from each JSON battle representation, resulting in 80 facts in total. We include four battle aspects: metadata, participants, outcome, and military facets, and select one fact from each category using a fixed random seed. Table~\ref{tab:json_kb_validation} shows the experiment configuration.
+
+\begin{table}[!htbp]
+\centering
+\caption{Configuration of the JSON knowledge base validation experiment}
+\label{tab:json_kb_validation}
+
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{4pt}
+
+\begin{tabular}{
+    >{\RaggedRight\arraybackslash}p{0.20\textwidth}
+    >{\RaggedRight\arraybackslash}p{0.34\textwidth}
+    >{\RaggedRight\arraybackslash}p{0.34\textwidth}
+}
+\toprule
+\textbf{Parameter} &
+\multicolumn{2}{l}{\textbf{Configuration}} \\
+\midrule
+
+Reference source &
+\multicolumn{2}{l}{English Wikipedia raw article text} \\
+
+Number of battles &
+\multicolumn{2}{l}{20} \\
+
+Facts per battle &
+\multicolumn{2}{l}{4 (one per category)} \\
+
+Generated fact count &
+\multicolumn{2}{l}{80} \\
+
+Random seed &
+\multicolumn{2}{l}{42} \\
+
+Fact categories &
+\multicolumn{2}{p{0.68\textwidth}}{
+\texttt{metadata}, \texttt{participants},
+\texttt{outcome}, \texttt{military\_facets}
+} \\
+
+\midrule
+\textbf{Selected battles} &
+\textbf{Battle name and QID} &
+\textbf{Battle name and QID} \\
+\midrule
+
+1--2 &
+Battle of Leipzig (\texttt{Q151005}) &
+Battle of Stalingrad (\texttt{Q38789}) \\
+
+3--4 &
+Battle of Waterloo (\texttt{Q48314}) &
+Battle of Zama (\texttt{Q200056}) \\
+
+5--6 &
+Battle of Wuhan (\texttt{Q2038907}) &
+Battle of Gettysburg (\texttt{Q33132}) \\
+
+7--8 &
+Battle of Borodino (\texttt{Q184320}) &
+Battle of Vienna (\texttt{Q200855}) \\
+
+9--10 &
+Battle of Hastings (\texttt{Q83224}) &
+Battle of Cannae (\texttt{Q179591}) \\
+
+11--12 &
+Battle of Marathon (\texttt{Q31900}) &
+Battle of Agincourt (\texttt{Q188495}) \\
+
+13--14 &
+Battle of Austerlitz (\texttt{Q134114}) &
+Battle of the Somme (\texttt{Q132568}) \\
+
+15--16 &
+Battle of Iwo Jima (\texttt{Q180182}) &
+Battle of Thermopylae (\texttt{Q131969}) \\
+
+17--18 &
+Battle of Okinawa (\texttt{Q192660}) &
+Battle of Berlin (\texttt{Q154182}) \\
+
+19--20 &
+Battle of Tannenberg (\texttt{Q153858}) &
+Battle of Tours (\texttt{Q173077}) \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+After that, each sampled fact is validated by an LLM against the source text of the corresponding Wikipedia article. The validation model is instructed to use only the source article and classify each fact as \textit{supported}, \textit{contradicted}, or \textit{not found}. \textit{Supported} means that the article provides sufficient evidence for the claim, \textit{contradicted} means that the source contains information incompatible with the claim, and \textit{not found} means that the source does not provide sufficient evidence either to support or contradict the claim. The generated facts and validation results are stored in the \texttt{results/fact\_validation} directory. The results of this validation experiment are discussed in Section 5.4 of the Experimental Results chapter.
+
 \section{LLM-Based Schema Population}
 At this stage, we already have a raw-text knowledge base containing 11,561 historical battle articles and a JSON representation schema covering the relevant aspects of a battle. The next step is to use an LLM to populate the JSON schema for each raw-text battle article. As a result, we obtain a structured knowledge base consisting of 11,561 JSON files, one for each battle instance.
 
-First, we introduce the GPT-OSS-120B model, which was used for the schema population task and also for almost all other LLM-based tasks described later \citep{openai2025gptoss}. The model was accessed through the ScaDS.AI service via its OpenAI-compatible REST API \citep{scadsai2026}. Communication with the service was implemented using the official OpenAI Python client and configured with the ScaDS.AI endpoint. Deterministic decoding was used by setting the temperature to 0.0 and disabling sampling. The maximum generation length was set to 4,000 tokens. The model response was returned as plain text and subsequently processed by the experiment pipeline. We treated responses terminated due to the maximum token limit as generation failures. Likewise, responses with missing content were handled as invalid model outputs.
+First, we introduce the GPT-OSS-120B model, which was used for the schema population task and also for almost all other LLM-based tasks described later \citep{openai2025gptoss}. The model was accessed through the ScaDS.AI service via its OpenAI-compatible REST API \citep{scadsai2026}. Communication with the service was implemented using the official OpenAI Python client and configured with the ScaDS.AI endpoint. Deterministic decoding was used by setting the temperature to 0.0 and disabling sampling. The maximum number of newly generated output tokens was set to 4,000. Lower values sometimes caused incomplete generations and parsing errors, which motivated the use of a 4,000-token limit. The model response was returned as plain text and subsequently processed by the experiment pipeline. We treated responses terminated due to the maximum token limit as generation failures. Likewise, responses with missing content were handled as invalid model outputs.
 
 Next, given the LLM gateway and the local knowledge base of battle articles, we proceed with designing a prompt for the schema-population task. The idea is to ask the model to fill the empty representation schema with values based on the raw-text article. Figure~\ref{fig:battle_extraction_prompt} shows the prompt structure without the 17 additional rules, while all 17 rules included in the prompt are presented below.
 
@@ -469,6 +588,7 @@ Next, given the LLM gateway and the local knowledge base of battle articles, we 
     \item Return exactly one valid JSON object. Do not include Markdown, comments, explanations, or text outside the JSON.
 
 \end{enumerate}
+\endgroup
 
 In the prompt, the LLM was given a role, a specific task, a set of rules, an output format, and the attached raw-text article together with the empty representation schema.
 
@@ -491,7 +611,7 @@ Finally, Rule 17 requires the model to return exactly one valid JSON object with
     \label{fig:battle_kb_construction}
 \end{figure}
 
-As a result, after running the generation pipeline over the entire raw-text knowledge base, we obtain a knowledge base of JSON battle representations, as illustrated in Figure~\ref{fig:battle_kb_construction}. It is worth mentioning that this is only the first version of our JSON knowledge base. In the next section, 3.4, we introduce an additional pipeline with an LLM verifier and a regeneration step, which finally leads to the second version of the JSON knowledge base that is expected to have higher quality.
+As a result, after running the generation pipeline over the entire raw-text knowledge base, we obtain a knowledge base of JSON battle representations, as illustrated in Figure~\ref{fig:battle_kb_construction}. The resulting KB is available in the project folder under \texttt{data/json\_kb.zip}. It is worth mentioning that this is only the first version of our JSON knowledge base. In the following section we introduce an additional pipeline with an LLM verifier and a regeneration step, which finally leads to the second version of the JSON knowledge base that is expected to have higher quality.
 \section{LLM Verification and Regeneration}
 During the analysis of the generated JSON battle representations, we identified several cases where the first version of the knowledge base (KB1) contained incomplete or semantically inconsistent structured information. One example is the Battle of Stalingrad. In KB1, the Soviet force composition contained only a subset of the formations explicitly mentioned in the source article, including the 62nd, 51st, 57th, 24th, and 5th Tank Armies. However, the source also described several additional Soviet formations involved in the later encirclement operation, such as the 28th, 64th, 65th, 66th, 1st Guards, and 21st Armies, as well as several air armies. After verification and regeneration, these missing formations were added in KB2, resulting in a more complete representation of the Soviet forces. The comparison between the corresponding KB1 and KB2 fields is shown in Figure~\ref{fig:kb1_kb2_comparison}.
 
@@ -579,10 +699,10 @@ A successful lexical retrieval example was obtained for the query \textit{Find m
     \renewcommand{\arraystretch}{1.3}
     \setlength{\tabcolsep}{6pt}
 
-    \begin{tabularx}{\textwidth}{
+    \begin{tabular}{
         l
         r
-        >{\raggedright\arraybackslash}X
+        >{\raggedright\arraybackslash}p{0.55\textwidth}
     }
         \toprule
         \textbf{Query term} &
@@ -603,7 +723,7 @@ A successful lexical retrieval example was obtained for the query \textit{Find m
         Matches the battle's scale classification \\
 
         \bottomrule
-    \end{tabularx}
+    \end{tabular}
 \end{table}
 
 Although BM25 performs accurate retrieval in several cases, it still has some limitations. In particular, the algorithm relies on exact term matching and may struggle with questions that contain relevant concepts but use different wording from the corresponding passages. Furthermore, our lexical retrieval implementation does not explicitly exploit the underlying JSON structure and operates on the entire serialized document. Therefore, it may match information from less relevant fields and assign weight to tokens that are not useful for a particular query. We discuss this limitation in more detail in Chapter 6.
@@ -659,12 +779,12 @@ During our retrieval experiments, we observed an interesting case when testing o
     \renewcommand{\arraystretch}{1.4}
     \setlength{\tabcolsep}{5pt}
 
-    \begin{tabularx}{\textwidth}{
-        >{\raggedright\arraybackslash}p{0.14\textwidth}
-        >{\centering\arraybackslash}p{0.13\textwidth}
-        >{\centering\arraybackslash}p{0.09\textwidth}
-        >{\centering\arraybackslash}p{0.15\textwidth}
-        >{\raggedright\arraybackslash}X
+    \begin{tabular}{
+        >{\raggedright\arraybackslash}p{0.13\textwidth}
+        >{\centering\arraybackslash}p{0.12\textwidth}
+        >{\centering\arraybackslash}p{0.08\textwidth}
+        >{\centering\arraybackslash}p{0.14\textwidth}
+        >{\raggedright\arraybackslash}p{0.36\textwidth}
     }
         \toprule
         \textbf{Query term} &
@@ -718,14 +838,14 @@ During our retrieval experiments, we observed an interesting case when testing o
         the battle \\
 
         \bottomrule
-    \end{tabularx}
+    \end{tabular}
 \end{table}
 
 Since both approaches capture different relevance signals, it may be beneficial to combine them into a hybrid retrieval procedure that can potentially improve retrieval robustness. For this reason, we additionally implement a hybrid retrieval pipeline that combines the rankings from both previous retrieval methods.
 \subsection{Hybrid Retrieval}
 As discussed above, lexical and dense retrieval capture different types of relevance signals. Lexical retrieval is particularly effective at finding exact matches between a query and a battle representation, while dense retrieval can identify semantically related records even when the query and the relevant representation use different wording. This motivates the use of a hybrid retrieval pipeline that combines the rankings from both methods.
 
-The scores produced by BM25 and dense retrieval are not directly comparable because they use different scoring functions and operate on different scales. We therefore combine the two rankings using Reciprocal Rank Fusion (RRF). RRF combines the rankings based on the position of each battle in the individual result lists. 
+The scores produced by BM25 and dense retrieval are not directly comparable because they use different scoring functions and operate on different scales. We therefore combine the two rankings using Reciprocal Rank Fusion (RRF) \citep{cormack2009rrf}. RRF combines the rankings based on the position of each battle in the individual result lists. 
 For every candidate battle $d$, its BM25 and dense ranks are converted into reciprocal-rank contributions using $1/(k + \mathrm{rank})$.
 A single fused score is then obtained using the following formula, as shown in Equation~\eqref{eq:rrf}:
 
@@ -995,7 +1115,7 @@ For each batch, GPT-5.6 Sol was instructed to identify meaningful factual and na
 \end{figure}
 
 \section{Oracle-context Generation Experiment}
-As described in Chapter 3.6, the Oracle-context generation experiment aims to evaluate the ability of the model to choose the correct set of battles from a provided list of candidate battles consisting of both gold battles and closed-set negatives. The process for all three LLM configurations including the baseline LLM, JSON-augmented LLM, and raw-text-augmented LLM was illustrated in detail in Figure~\ref{fig:closed_set_baseline}, Figure~\ref{fig:closed_set_json} and Figure~\ref{fig:closed_set_raw_text}. For all experiments, GPT-OSS-120B is used again. In this experiment, there is no retrieval step, so we evaluate generation performance in isolation. The baseline LLM does not receive any external context and performs reasoning using only its internal knowledge. In the JSON-augmented and raw-text-augmented configurations, the LLM receives either JSON battle representations or raw-text Wikipedia articles, respectively. The provided battle instances include both battles from the gold set and battles from the closed-set negative set. We use KB2 as the battle knowledge corpus from which battle representations are provided to the JSON-augmented model. For additional analysis, we also include results from a JSON-augmented model that received battle representations from KB1 to evaluate how the LLM Verification and Regeneration step improved the structured battle knowledge base.
+As described in Section 3.8.1, the Oracle-context generation experiment aims to evaluate the ability of the model to choose the correct set of battles from a provided list of candidate battles consisting of both gold battles and closed-set negatives. The process for all three LLM configurations including the baseline LLM, JSON-augmented LLM, and raw-text-augmented LLM was illustrated in detail in Figure~\ref{fig:closed_set_baseline}, Figure~\ref{fig:closed_set_json} and Figure~\ref{fig:closed_set_raw_text}. For all experiments, GPT-OSS-120B is used again. In this experiment, there is no retrieval step, so we evaluate generation performance in isolation. The baseline LLM does not receive any external context and performs reasoning using only its internal knowledge. In the JSON-augmented and raw-text-augmented configurations, the LLM receives either JSON battle representations or raw-text Wikipedia articles, respectively. The provided battle instances include both battles from the gold set and battles from the closed-set negative set. We use KB2 as the battle knowledge corpus from which battle representations are provided to the JSON-augmented model. For additional analysis, we also include results from a JSON-augmented model that received battle representations from KB1 to evaluate how the LLM Verification and Regeneration step improved the structured battle knowledge base.
 
 To gain more insight into generation performance and the differences between the three configurations, we divide the experiment into three parts. In the first part, we analyze the overall generation performance and compare the results obtained using KB1 and KB2. In the second part, we analyze generation performance for common and rare battles separately, by filtering the initial query set. In the third part, we evaluate the LLM configurations across different query types to examine how query type affects the ability of the LLM to provide accurate answers. Similarity queries are excluded from this overall comparison and evaluated separately. Table~\ref{tab:generation_experiment_parts} illustrates all three parts of the experiment, including their aims, testing subjects, and descriptions.
 \begin{table}[htbp]
@@ -1051,7 +1171,7 @@ To evaluate generation performance, we use four main metrics: precision, recall,
 
 The model is instructed to follow a specific JSON output format, which is parsed after generation. The returned battle QIDs are used for quantitative evaluation. Duplicate predicted QIDs are removed before the metrics are calculated. For each query, precision and recall are computed by comparing the predicted QID set with the corresponding gold QID set, while F1 is calculated as their harmonic mean. Exact match is assigned a value of 1 only if the predicted set of battles is identical to the complete gold set, and 0 otherwise. We use the \texttt{battle\_names} and \texttt{explanations} fields for debugging purposes and overall analysis. Responses that cannot be parsed into the expected JSON structure or that contain invalid QIDs are recorded as parse errors and receive zero scores for the generation metrics. If the model encounters a failure during execution, we record it separately as a run error.
 \section{Retrieval Experiment}
-The methodology and implementation of the three retrieval pipelines, lexical, dense, and hybrid retrieval, were previously discussed in Chapter 3.5. In this section, we discuss the retrieval experiments used to compare these approaches. The retrieval experiment aims to evaluate the retrieval step in isolation and determine how well each retrieval algorithm ranks battle instances from our historical battle knowledge base for a given query. All three strategies were evaluated using the same set of 102 raw-text queries and compared against the corresponding gold sets of relevant historical battles. For each query, the BM25 and dense retrieval algorithms independently returned the top 100 candidate battles, ranked according to their retrieval scores. The two ranked lists were then combined using Reciprocal Rank Fusion, producing a hybrid ranking that was limited to the top 50 battles.
+The methodology and implementation of the three retrieval pipelines, lexical, dense, and hybrid retrieval, were previously discussed in Section 3.7. In this section, we discuss the retrieval experiments used to compare these approaches. The retrieval experiment aims to evaluate the retrieval step in isolation and determine how well each retrieval algorithm ranks battle instances from our historical battle knowledge base for a given query. All three strategies were evaluated using the same set of 102 raw-text queries and compared against the corresponding gold sets of relevant historical battles. For each query, the BM25 and dense retrieval algorithms independently returned the top 100 candidate battles, ranked according to their retrieval scores. The two ranked lists were then combined using Reciprocal Rank Fusion, producing a hybrid ranking that was limited to the top 50 battles.
 
 We used six metrics to evaluate the performance of each retrieval algorithm: Recall@10, Recall@20, Recall@50, Mean Reciprocal Rank (MRR), Mean Average Precision at 10 (MAP@10), and normalized Discounted Cumulative Gain at 10 (nDCG@10). Recall@k measures the proportion of relevant battle records retrieved among the top-$k$ results. MRR evaluates the rank position of the first relevant battle. MAP@10 assesses how highly relevant battle records are ranked among the top 10 candidates. Finally, nDCG@10 evaluates ranking quality by assigning higher importance to relevant battles appearing at earlier positions. A detailed description and mathematical formulation of the metrics is provided in Table~\ref{tab:retrieval_metrics}. Binary relevance labels were used: battles included in the query-specific gold set were treated as relevant, while all other battles were treated as non-relevant. All metrics were computed independently for each query and then macro-averaged across the query set, giving each query equal weight.
 \begin{table}[htbp]
@@ -1204,7 +1324,7 @@ Listing~\ref{lst:retrieval_rare_results} shows an example of the JSON output pro
 \end{minipage}
 
 \section{End-to-end RAG Experiment}
-Following the description of the generation experiments in Chapter 3.6, the end-to-end RAG experiment evaluates the complete pipeline, including both retrieval and answer-generation steps. Unlike the Oracle-context experiment, the set of candidate battles to choose from is not provided in advance. Instead, the retrieval pipeline first selects the top-$k$ battle records from the knowledge base, and these retrieved records are then passed to the generation stage. We use the hybrid retrieval pipeline for the retrieval step. We again compare three LLM configurations: the baseline LLM, the raw-text-augmented LLM, and the JSON-augmented LLM. The baseline LLM receives only the original query and relies on its internal knowledge, while the JSON-augmented and raw-text-augmented configurations receive retrieved JSON battle representations or the corresponding raw Wikipedia texts as external context. We additionally analyze the performance of the augmented models for different values of $k$, representing different numbers of retrieved battle instances. The final performance in this experiment depends on both retrieval quality and the model’s ability to correctly interpret the retrieved evidence.
+Following the description of the generation experiments in Section 3.8.2, the end-to-end RAG experiment evaluates the complete pipeline, including both retrieval and answer-generation steps. Unlike the Oracle-context experiment, the set of candidate battles to choose from is not provided in advance. Instead, the retrieval pipeline first selects the top-$k$ battle records from the knowledge base, and these retrieved records are then passed to the generation stage. We use the hybrid retrieval pipeline for the retrieval step. We again compare three LLM configurations: the baseline LLM, the raw-text-augmented LLM, and the JSON-augmented LLM. The baseline LLM receives only the original query and relies on its internal knowledge, while the JSON-augmented and raw-text-augmented configurations receive retrieved JSON battle representations or the corresponding raw Wikipedia texts as external context. We additionally analyze the performance of the augmented models for different values of $k$, representing different numbers of retrieved battle instances. The final performance in this experiment depends on both retrieval quality and the model’s ability to correctly interpret the retrieved evidence.
 
 The end-to-end RAG experiment is divided into three parts to test different aspects of the complete pipeline across different query categories and configurations. In the first part, we test the effect of different values of $k$, representing different numbers of retrieved battle instances provided by the hybrid retrieval algorithm. By default, it returns a ranked list of the top 50 battle records for each query. However, providing 50 JSON representations to the LLM may introduce a substantial amount of irrelevant information and increase the context length. Previous work has shown that LLMs may struggle to effectively utilize relevant information in long contexts, particularly when it appears in the middle of the input prompt \citep{liu2024lostinthemiddle}. Therefore, we investigate different $k$-values representing the top-ranked battles supplied to the LLM. The goal is to find an optimal retrieval depth that balances the presence of relevant battles with answer accuracy.
 
@@ -1218,7 +1338,7 @@ In this chapter we discuss Experiment Results, specifically for Retrieval, Oracl
 \section{Retrieval Results}
 As previously discussed in Chapter 4.3, we conducted three sub-experiments to evaluate different aspects of retrieval quality and performance. First, we report the overall retrieval results across the complete set of 102 queries and compare retrieval performance when using the KB1 and KB2 battle corpora. Second, we focus on queries involving common and rare battles and analyze how context rarity affects the performance of each retrieval strategy. Finally, we investigate how retrieval performance differs across different query types.
 \subsection{Overall Retrieval Performance}
-Table~\ref{tab:overall_retrieval_performance} shows the overall retrieval performance across all 102 queries. Additionally, we compare retrieval performance separately using the KB1 and KB2 battle corpora. Figure~\ref{fig:overall_retrieval_comparison} show Recall@10/20/50, MRR, MAP@10 and nDCG@10 scores for the three retrieval pipelines: lexical, dense, and hybrid retrieval. Additional labels distinguish the results obtained using KB1 (bars on the left) from those obtained using KB2 (bars on the right). Recall scores remain similar across the two knowledge base versions, suggesting that KB2 does not provide a substantial retrieval advantage over KB1. Dense retrieval improves Recall over BM25 by approximately 9.0\% on average, while hybrid retrieval further improves Recall over dense retrieval by approximately 1.4\%. The higher recall of dense retrieval is consistent with its ability to capture semantic similarity beyond exact lexical overlap. 
+Table~\ref{tab:overall_retrieval_performance} shows the overall retrieval performance across all 102 queries. Additionally, we compare retrieval performance separately using the KB1 and KB2 battle corpora. Figure~\ref{fig:overall_retrieval_comparison} shows Recall@10/20/50, MRR, MAP@10 and nDCG@10 scores for the three retrieval pipelines: lexical, dense, and hybrid retrieval. Additional labels distinguish the results obtained using KB1 (bars on the left) from those obtained using KB2 (bars on the right). Recall scores remain similar across the two knowledge base versions, suggesting that KB2 does not provide a substantial retrieval advantage over KB1. Dense retrieval improves Recall over BM25 by approximately 9.0\% on average, while hybrid retrieval further improves Recall over dense retrieval by approximately 1.4\%. The higher recall of dense retrieval is consistent with its ability to capture semantic similarity beyond exact lexical overlap. 
 
 \begin{figure}[!htbp]
     \centering
@@ -1694,7 +1814,7 @@ Overall, the hybrid retrieval strategy provides a very consistent improvement ov
 \section{Oracle-context Generation Results}
 In Chapter 4.2, we introduced the Oracle-context generation experiment, which is designed to evaluate the generation step in isolation, without the influence of retrieval quality. For each query, the model is provided with a predefined set of candidate battles to choose from, containing both battles from the gold set and hard negatives. We divided the Oracle-context generation experiment into three parts. First, we evaluated overall generation performance across the complete query set by comparing the baseline LLM, raw-text-augmented LLM, and JSON-augmented LLM, while also assessing the JSON-augmented results obtained using KB1 and KB2 separately. In the second sub-experiment, we analyzed generation performance separately for queries involving common and rare battles. Finally, we compared generation performance across the different query types. We used four main metrics for the analysis: precision, recall, F1, and exact match. In addition, we recorded the number of parse errors and run errors.
 \subsection{Overall Generation Performance}
-We summarize the Oracle-context generation results in Table~\ref{tab:oracle_overall_performance} and additionally visualize them in Figure~\ref{fig:overall_oracle_comparison}. The comparison between KB1 and KB2 shows that the verification and regeneration pipeline used to construct KB2 did not lead to a substantial improvement over KB1. As shown in Table 5.2.1.1, KB2 achieved almost identical recall and the same exact-match score as KB1, while precision and F1 were slightly lower. The bar chart further illustrates the small differences between the two JSON-augmented configurations.
+We summarize the Oracle-context generation results in Table~\ref{tab:oracle_overall_performance} and additionally visualize them in Figure~\ref{fig:overall_oracle_comparison}. The comparison between KB1 and KB2 shows that the verification and regeneration pipeline used to construct KB2 did not lead to a substantial improvement over KB1. As shown in Table Table~\ref{tab:oracle_overall_performance}, KB2 achieved almost identical recall and the same exact-match score as KB1, while precision and F1 were slightly lower. The bar chart further illustrates the small differences between the two JSON-augmented configurations.
 
 \begin{figure}[!htbp]
     \centering
@@ -2424,7 +2544,7 @@ Next, we evaluate the complete pipeline separately for each query type to examin
 \end{table}
 The query-type experiment shows that the effect of JSON augmentation varies considerably across different query categories. When the four evaluation metrics are averaged within each query type, the JSON-augmented model outperforms the baseline in four of the seven categories: Narrative/Tactical, Participant-related, Spatial/Terrain, and Weapon/Unit-related queries. The strongest improvement is observed for Spatial/Terrain queries, where the average score increases from 0.204 to 0.385, corresponding to a relative improvement of approximately 88.8\%. Narrative/Tactical queries improve by 28.9\% compared with the baseline model, while Participant-related queries show an 18.6\% increase in the average score. Weapon/Unit-related queries, on the other hand, show only a minor improvement of 0.4\%.
 
-The main advantage of JSON augmentation is observed in the recall metric. Here, the JSON-augmented model achieves higher recall than the baseline in six of the seven query types. In particular, for Spatial/Terrain queries, the JSON-augmented model outperforms the baseline by 154.6\%, increasing recall from 0.205 to 0.522. A similar trend is observed for Participant-related queries, with a 59.2\% improvement over the baseline, followed by Narrative/Tactical queries with a 51.8\% improvement and Weapon/Unit-related queries with an improvement of approximately 32\%. These results indicate that structured context mainly improves the model’s ability to recover relevant battles; however, this advantage is not universal. Similarity queries represent a clear failure case, where recall decreases from 0.490 for the baseline model to 0.170 for the JSON-augmented model. A similar pattern is observed for F1, where the baseline model substantially outperforms the JSON-augmented LLM. Temporal queries, as shown in Figure 5.3.3.2, are also handled well by the baseline model, which achieves slightly better results than the augmented configurations.
+The main advantage of JSON augmentation is observed in the recall metric. Here, the JSON-augmented model achieves higher recall than the baseline in six of the seven query types. In particular, for Spatial/Terrain queries, the JSON-augmented model outperforms the baseline by 154.6\%, increasing recall from 0.205 to 0.522. A similar trend is observed for Participant-related queries, with a 59.2\% improvement over the baseline, followed by Narrative/Tactical queries with a 51.8\% improvement and Weapon/Unit-related queries with an improvement of approximately 32\%. These results indicate that structured context mainly improves the model’s ability to recover relevant battles; however, this advantage is not universal. Similarity queries represent a clear failure case, where recall decreases from 0.490 for the baseline model to 0.170 for the JSON-augmented model. A similar pattern is observed for F1, where the baseline model substantially outperforms the JSON-augmented LLM. Temporal queries, as shown in Table~\ref{tab:e2e_query_types_1}, are also handled well by the baseline model, which achieves slightly better results than the augmented configurations.
 
 Particularly interesting results are observed for the Similarity query type, as illustrated in Figure~\ref{fig:similarity_e2e_comparison}. The JSON-augmented model achieves substantially lower scores than the baseline LLM across all four evaluation metrics. Across precision, recall, and F1, the baseline LLM outperforms the JSON-augmented model by approximately 261\% on average, while exact match is 0.0 for the JSON-augmented model. During the analysis, we found that this poor performance is primarily related to failures at the retrieval stage. In five of the ten Similarity queries, none of the corresponding gold battles appeared within the top 20 retrieved records, which prevented the JSON-augmented model from producing a correct gold answer.
 
@@ -2514,6 +2634,53 @@ A similar pattern occurs for the q08 Similarity query, where the model was asked
 These cases suggest an additional challenge in evaluating similarity-based queries. The previous query types were based on more explicit temporal, participant, spatial, weapon, or outcome constraints, whereas Similarity queries often involve several dimensions at once. As a result, different battles may be considered similar according to different properties. For example, q08 asks: \textit{Find a battle similar to Stalingrad in which an attacking army became overextended and was ultimately encircled by a large counteroffensive.} Similarity to Stalingrad may refer to encirclement, engagement scale, army size, or the broader counteroffensive narrative. This makes Similarity queries particularly sensitive to incomplete gold sets, since a retrieved battle may be semantically plausible even if it is not included in the predefined gold set. Consequently, retrieval and generation quality may be underestimated for this query type. This limitation of the query design is discussed further in Chapter 6, Discussion.
 
 Overall, the query-type experiment shows that the usefulness of structured augmentation depends strongly on the semantic characteristics of each query type.
+\section{JSON Knowledge Base Validation Results}
+In this section, we investigate the results of our JSON KB validation experiment discussed in Section 3.4. Table~\ref{tab:json_kb_validation_results} presents the overall results as well as the results for each category. Overall, 73 of 80 sampled facts (91.25\%) were supported by the corresponding Wikipedia source texts. No sampled fact was explicitly contradicted, while the remaining seven facts could not be sufficiently verified from the source. Five of these seven cases concerned the higher-level \texttt{outcome.result\_type} field, suggesting that abstract outcome classifications are less directly grounded in the source wording than more factual fields such as participants, dates, and locations.
+
+\begin{table}[H]
+\centering
+\caption{Results of the JSON knowledge base validation experiment}
+\label{tab:json_kb_validation_results}
+
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{5pt}
+
+\begin{tabular}{
+    >{\RaggedRight\arraybackslash}p{0.30\textwidth}
+    c
+    c
+    c
+    c
+}
+\toprule
+\textbf{Category} &
+\textbf{Evaluated} &
+\textbf{Supported} &
+\textbf{Not found} &
+\textbf{Support rate} \\
+\midrule
+
+Metadata & 20 & 19 & 1 & 95.00\% \\
+
+Participants & 20 & 20 & 0 & 100.00\% \\
+
+Outcome & 20 & 15 & 5 & 75.00\% \\
+
+Military facets & 20 & 19 & 1 & 95.00\% \\
+
+\midrule
+
+\textbf{Overall} &
+\textbf{80} &
+\textbf{73} &
+\textbf{7} &
+\textbf{91.25\%} \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
 \chapter{Discussion}
 In this chapter, we first summarize the key findings and draw the main conclusions. After that, we discuss the main limitations of our implemented RAG pipelines and present several directions for future work.
 \section{Key Findings and Conclusions}
