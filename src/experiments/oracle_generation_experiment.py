@@ -6,24 +6,24 @@
 #   Configuration: Baseline LLM vs JSON-augmented LLM vs Raw-text-augmented LLM
 ##############################
 
+import argparse
 import json
 import os
 from pathlib import Path
 
 from typing import Any, Literal
-from matplotlib import pyplot as plt
-import numpy as np
 
 from src.utils.llm import load_llm, generate_answer
+from src.utils.prompts import (
+    build_baseline_system_message_oracle, 
+    build_json_augmented_system_message_oracle,
+    build_raw_text_augmented_system_message_oracle
+ )
 
 
 QUERIES_FILE = "data/queries/queries_all.json"
 
 RESULTS_DIR = "results/oracle_generation"
-DETAILS_DIR_KB1 = os.path.join(RESULTS_DIR, "details_kb1")
-DETAILS_DIR_KB2 = os.path.join(RESULTS_DIR, "details_kb2")
-FINAL_REPORTS_DIR_KB1 = os.path.join(RESULTS_DIR, "final_reports_kb1")
-FINAL_REPORTS_DIR_KB2 = os.path.join(RESULTS_DIR, "final_reports_kb2")
 KB1_KB2_RESULTS_DIR = os.path.join(RESULTS_DIR, "kb1_vs_kb2")
 COMMON_RARE_RESULTS_DIR = os.path.join(RESULTS_DIR, "common_vs_rare")
 
@@ -249,112 +249,6 @@ def load_raw_texts_for_query(query_data):
     return records, file_paths
 
 
-# -------------------------
-# Prompt builders
-# -------------------------
-
-def build_baseline_system_message():
-    return (
-        "You are a historical battle question-answering assistant.\n\n"
-        "Rules:\n"
-        "- Use your own general knowledge.\n"
-        "- Return only battle QIDs from the given battle set.\n"
-        "- Include a battle only if you are confident that the battle matches the question.\n"
-        "- If you are uncertain whether a battle matches, exclude it.\n"
-        "- If none of the battles from the set match the question, return an empty battles list.\n"
-        "- Do not invent details that you are not confident about.\n\n"
-        "Output format:\n"
-        "Return only valid JSON. Do not include markdown, code fences, or extra text.\n"
-        "The JSON must have exactly this structure:\n"
-        "{\n"
-        '  "battles": ["QID1", "QID2"],\n'
-        '  "battle_names": {\n'
-        '    "QID1": "Battle name 1",\n'
-        '    "QID2": "Battle name 2"\n'
-        "  },\n"
-        '  "explanations": {\n'
-        '    "QID1": "one short explanation",\n'
-        '    "QID2": "one short explanation"\n'
-        "  }\n"
-        "}\n\n"
-        "If there are no matching battles, return:\n"
-        "{\n"
-        '  "battles": [],\n'
-        '  "battle_names": {},\n'
-        '  "explanations": {}\n'
-        "}"
-    )
-
-
-def build_json_augmented_system_message():
-    return (
-        "You are a historical battle question-answering assistant.\n\n"
-        "Rules:\n"
-        "- Use only the provided JSON battle records as evidence.\n"
-        "- Do not use your internal knowledge or outside knowledge.\n"
-        "- Return only battle QIDs from the given battle set.\n"
-        "- Include a battle only if the provided JSON explicitly supports that it matches the question.\n"
-        "- If you are uncertain whether the JSON supports a battle, exclude it.\n"
-        "- If the JSON data does not support an answer, return an empty battles list.\n"
-        "- Do not invent missing details.\n"
-        "- In each explanation, mention the relevant JSON field if possible.\n\n"
-        "Output format:\n"
-        "Return only valid JSON. Do not include markdown, code fences, or extra text.\n"
-        "The JSON must have exactly this structure:\n"
-        "{\n"
-        '  "battles": ["QID1", "QID2"],\n'
-        '  "battle_names": {\n'
-        '    "QID1": "Battle name 1",\n'
-        '    "QID2": "Battle name 2"\n'
-        "  },\n"
-        '  "explanations": {\n'
-        '    "QID1": "one short explanation based on JSON evidence",\n'
-        '    "QID2": "one short explanation based on JSON evidence"\n'
-        "  }\n"
-        "}\n\n"
-        "If there are no matching battles or the answer is not supported by the JSON, return:\n"
-        "{\n"
-        '  "battles": [],\n'
-        '  "battle_names": {},\n'
-        '  "explanations": {}\n'
-        "}"
-    )
-
-
-def build_raw_text_augmented_system_message():
-    return (
-        "You are a historical battle question-answering assistant.\n\n"
-        "Rules:\n"
-        "- Use only the provided raw battle texts as evidence.\n"
-        "- Do not use your internal knowledge or outside knowledge.\n"
-        "- Return only battle QIDs from the given battle set.\n"
-        "- Include a battle only if the provided raw text explicitly supports that it matches the question.\n"
-        "- If you are uncertain whether the raw text supports a battle, exclude it.\n"
-        "- If the raw text data does not support an answer, return an empty battles list.\n"
-        "- Do not invent missing details.\n"
-        "- In each explanation, briefly mention the supporting textual evidence.\n\n"
-        "Output format:\n"
-        "Return only valid JSON. Do not include markdown, code fences, or extra text.\n"
-        "The JSON must have exactly this structure:\n"
-        "{\n"
-        '  "battles": ["QID1", "QID2"],\n'
-        '  "battle_names": {\n'
-        '    "QID1": "Battle name 1",\n'
-        '    "QID2": "Battle name 2"\n'
-        "  },\n"
-        '  "explanations": {\n'
-        '    "QID1": "one short explanation based on raw-text evidence",\n'
-        '    "QID2": "one short explanation based on raw-text evidence"\n'
-        "  }\n"
-        "}\n\n"
-        "If there are no matching battles or the answer is not supported by the raw text, return:\n"
-        "{\n"
-        '  "battles": [],\n'
-        '  "battle_names": {},\n'
-        '  "explanations": {}\n'
-        "}"
-    )
-
 
 def build_baseline_prompt(query, all_battle_items):
     battle_list = format_battle_set(all_battle_items)
@@ -544,7 +438,7 @@ def run_single_experiment(
     }
 
     if experiment_type == "baseline":
-        system_message = build_baseline_system_message()
+        system_message = build_baseline_system_message_oracle()
         prompt = build_baseline_prompt(
             query=query,
             all_battle_items=all_battle_items
@@ -559,7 +453,7 @@ def run_single_experiment(
             query_data,
             json_dir=json_dir
         )
-        system_message = build_json_augmented_system_message()
+        system_message = build_json_augmented_system_message_oracle()
         prompt = build_json_augmented_prompt(
             query=query,
             all_battle_items=all_battle_items,
@@ -568,7 +462,7 @@ def run_single_experiment(
 
     elif experiment_type == "raw_text_augmented":
         raw_text_records, context_file_paths = load_raw_texts_for_query(query_data)
-        system_message = build_raw_text_augmented_system_message()
+        system_message = build_raw_text_augmented_system_message_oracle()
         prompt = build_raw_text_augmented_prompt(
             query=query,
             all_battle_items=all_battle_items,
@@ -771,556 +665,6 @@ def print_final_report(experiment_type, report):
     print(f"Exact Match: {final_results['exact_match']:.4f}")
     print(f"Parse Errors: {final_results['parse_error_count']}")
     print(f"Run Errors: {final_results['run_error_count']}")
-
-
-def plot_metric_kb1_kb2(
-    metric_name: str,
-    file: Path = Path(KB1_KB2_RESULTS_DIR) / "final_reports" / "comparison_final_report.json",
-) -> None:
-    """
-    Plot one oracle-generation metric for all four configurations.
-
-    The input is the comparison report produced by
-    ``run_oracle_experiment_kb1_kb2()``.
-    """
-    file = Path(file)
-
-    with file.open("r", encoding="utf-8") as f:
-        report = json.load(f)
-
-    report_configurations = report.get("configurations")
-
-    if not isinstance(report_configurations, dict):
-        raise ValueError(
-            f"Missing 'configurations' object in report: {file}"
-        )
-
-    configurations = [
-        ("baseline", "Baseline", "green"),
-        ("raw_text_augmented", "Raw text", "blue"),
-        ("json_kb1", "JSON KB1", "orange"),
-        ("json_kb2", "JSON KB2", "darkred"),
-    ]
-    labels = []
-    values = []
-    colors = []
-
-    for configuration_key, display_name, color in configurations:
-        if configuration_key not in report_configurations:
-            raise ValueError(
-                f"Missing configuration {configuration_key!r} in report: "
-                f"{file}"
-            )
-
-        configuration_results = report_configurations[configuration_key]
-
-        if "Final_results" in configuration_results:
-            configuration_results = configuration_results["Final_results"]
-
-        if metric_name not in configuration_results:
-            raise ValueError(
-                f"Metric {metric_name!r} is missing for "
-                f"{configuration_key!r} in report: {file}"
-            )
-
-        labels.append(display_name)
-        values.append(float(configuration_results[metric_name]))
-        colors.append(color)
-
-    fig, ax = plt.subplots(figsize=(8, 5.5))
-    bars = ax.bar(labels, values, color=colors, width=0.65)
-    ax.bar_label(
-        bars,
-        fmt="%.3f",
-        padding=3,
-        fontsize=9,
-    )
-
-    ax.set_ylabel(metric_name)
-    ax.set_title(f"Oracle-context generation: {metric_name}")
-
-    if metric_name.startswith("exact"):
-        ax.set_ylim(0.3, 0.9)
-    else:
-        ax.set_ylim(0.4, 1.05)
-
-    ax.grid(axis="y", linestyle="--", alpha=0.35)
-
-    fig.tight_layout()
-    plt.show()
-
-
-def plot_metric_common_rare(
-    metric_name: str = "f1",
-    common_file: Path = (
-        Path(COMMON_RARE_RESULTS_DIR)
-        / "oracle_generation_average_metrics_common.json"
-    ),
-    rare_file: Path = (
-        Path(COMMON_RARE_RESULTS_DIR)
-        / "oracle_generation_average_metrics_rare.json"
-    ),
-) -> None:
-    """
-    Plot one metric for common and rare oracle-generation queries.
-
-    Each x-axis group contains four bars: baseline, raw-text augmentation,
-    JSON KB1, and JSON KB2.
-    """
-    common_file = Path(common_file)
-    rare_file = Path(rare_file)
-
-    with common_file.open("r", encoding="utf-8") as f:
-        common_results = json.load(f)
-
-    with rare_file.open("r", encoding="utf-8") as f:
-        rare_results = json.load(f)
-
-    labels = ["Common", "Rare"]
-    reports = [common_results, rare_results]
-    report_files = [common_file, rare_file]
-    configurations = [
-        ("baseline", "Baseline", "green"),
-        ("raw_text_augmented", "Raw text", "blue"),
-        ("json_kb1", "JSON KB1", "orange"),
-        ("json_kb2", "JSON KB2", "darkred"),
-    ]
-
-    x = np.arange(len(labels))
-    width = 0.15
-
-    fig, ax = plt.subplots(figsize=(9, 5.5))
-
-    for i, (configuration_key, display_name, color) in enumerate(configurations):
-        values = []
-
-        for report, report_file in zip(reports, report_files):
-            report_configurations = report.get("configurations")
-
-            if not isinstance(report_configurations, dict):
-                raise ValueError(
-                    f"Missing 'configurations' object in report: {report_file}"
-                )
-
-            if configuration_key not in report_configurations:
-                raise ValueError(
-                    f"Missing configuration {configuration_key!r} in report: "
-                    f"{report_file}"
-                )
-
-            configuration_results = report_configurations[configuration_key]
-
-            if metric_name not in configuration_results:
-                raise ValueError(
-                    f"Metric {metric_name!r} is missing for "
-                    f"{configuration_key!r} in report: {report_file}"
-                )
-
-            values.append(float(configuration_results[metric_name]))
-
-        offset = (i - (len(configurations) - 1) / 2) * width
-        bars = ax.bar(
-            x + offset,
-            values,
-            width,
-            label=display_name,
-            color=color,
-        )
-        ax.bar_label(
-            bars,
-            fmt="%.3f",
-            padding=3,
-            fontsize=8,
-        )
-
-    ax.set_ylabel(metric_name)
-    ax.set_title(f"Common vs rare queries: {metric_name}")
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-
-    if metric_name.startswith("exact"):
-        ylim_start = 0.2
-        ylim_end = 0.8
-    else:
-        ylim_start = 0.4
-        ylim_end = 1.05
-
-    ax.set_ylim(ylim_start, ylim_end)
-    ax.grid(axis="y", linestyle="--", alpha=0.35)
-    ax.legend()
-
-    fig.tight_layout()
-    plt.show()
-
-
-def plot_metric_difficulty(
-    metric_name: str = "f1",
-    easy_file: Path = (
-        Path(RESULTS_DIR)
-        / "difficulty"
-        / "oracle_generation_average_metrics_easy.json"
-    ),
-    medium_file: Path = (
-        Path(RESULTS_DIR)
-        / "difficulty"
-        / "oracle_generation_average_metrics_medium.json"
-    ),
-    hard_file: Path = (
-        Path(RESULTS_DIR)
-        / "difficulty"
-        / "oracle_generation_average_metrics_hard.json"
-    ),
-) -> None:
-    """
-    Plot one metric for easy, medium, and hard queries.
-
-    Each difficulty group contains four bars:
-    baseline, raw-text augmentation, JSON KB1, and JSON KB2.
-    """
-    report_files = [
-        Path(easy_file),
-        Path(medium_file),
-        Path(hard_file),
-    ]
-
-    reports = []
-
-    for report_file in report_files:
-        with report_file.open(
-            "r",
-            encoding="utf-8",
-        ) as f:
-            reports.append(json.load(f))
-
-    labels = [
-        "Easy",
-        "Medium",
-        "Hard",
-    ]
-
-    configurations = [
-        ("baseline", "Baseline", "green"),
-        (
-            "raw_text_augmented",
-            "Raw text",
-            "blue",
-        ),
-        ("json_kb1", "JSON KB1", "orange"),
-        ("json_kb2", "JSON KB2", "darkred"),
-    ]
-
-    x = np.arange(len(labels))
-    width = 0.18
-
-    fig, ax = plt.subplots(
-        figsize=(10, 5.5)
-    )
-
-    for i, (
-        configuration_key,
-        display_name,
-        color,
-    ) in enumerate(configurations):
-        values = []
-
-        for report, report_file in zip(
-            reports,
-            report_files,
-        ):
-            report_configurations = report.get(
-                "configurations"
-            )
-
-            if not isinstance(
-                report_configurations,
-                dict,
-            ):
-                raise ValueError(
-                    "Missing 'configurations' object "
-                    f"in report: {report_file}"
-                )
-
-            if (
-                configuration_key
-                not in report_configurations
-            ):
-                raise ValueError(
-                    f"Missing configuration "
-                    f"{configuration_key!r} in report: "
-                    f"{report_file}"
-                )
-
-            configuration_results = (
-                report_configurations[
-                    configuration_key
-                ]
-            )
-
-            if metric_name not in configuration_results:
-                raise ValueError(
-                    f"Metric {metric_name!r} is missing "
-                    f"for {configuration_key!r} "
-                    f"in report: {report_file}"
-                )
-
-            values.append(
-                float(
-                    configuration_results[
-                        metric_name
-                    ]
-                )
-            )
-
-        offset = (
-            i - (len(configurations) - 1) / 2
-        ) * width
-
-        bars = ax.bar(
-            x + offset,
-            values,
-            width,
-            label=display_name,
-            color=color,
-        )
-
-        ax.bar_label(
-            bars,
-            fmt="%.3f",
-            padding=3,
-            fontsize=8,
-        )
-
-    ax.set_ylabel(metric_name)
-    ax.set_title(
-        f"Performance by query difficulty: "
-        f"{metric_name}"
-    )
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.set_ylim(0.3, 1.05)
-
-    ax.grid(
-        axis="y",
-        linestyle="--",
-        alpha=0.35,
-    )
-
-    ax.legend()
-
-    fig.tight_layout()
-    plt.show()
-
-
-def plot_metric_query_type(
-    metric_name: str = "f1",
-    labels: list[str] | None = None,
-    query_type_results_dir: Path = (
-        Path(RESULTS_DIR) / "query_type"
-    ),
-) -> None:
-    """
-    Plot one metric for configurable query types.
-
-    Each query-type group contains four bars:
-
-    - baseline
-    - raw_text_augmented
-    - json_kb1
-    - json_kb2
-    """
-    if labels is None:
-        labels = [
-            "Participant-related",
-            "Similarity",
-            "Narrative / Tactical",
-            "Temporal",
-            "Spatial / Terrain",
-            "Outcome-related",
-            "Weapon / Unit-related",
-        ]
-
-    # Remove duplicates while preserving order.
-    labels = list(dict.fromkeys(labels))
-
-    if not labels:
-        raise ValueError(
-            "At least one query-type label must be provided."
-        )
-
-    query_type_results_dir = Path(
-        query_type_results_dir
-    )
-
-    reports = []
-    report_files = []
-
-    for query_type in labels:
-        query_type_slug = (
-            query_type
-            .strip()
-            .lower()
-            .replace(" / ", "_")
-            .replace("/", "_")
-            .replace(" ", "_")
-            .replace("-", "_")
-        )
-
-        while "__" in query_type_slug:
-            query_type_slug = (
-                query_type_slug.replace(
-                    "__",
-                    "_",
-                )
-            )
-
-        report_file = (
-            query_type_results_dir
-            / (
-                "oracle_generation_average_metrics_"
-                f"{query_type_slug}.json"
-            )
-        )
-
-        if not report_file.exists():
-            raise FileNotFoundError(
-                f"Average-metrics report not found for "
-                f"{query_type!r}: {report_file}"
-            )
-
-        with report_file.open(
-            "r",
-            encoding="utf-8",
-        ) as f:
-            reports.append(json.load(f))
-
-        report_files.append(report_file)
-
-    configurations = [
-        ("baseline", "Baseline", "green"),
-        (
-            "raw_text_augmented",
-            "Raw text",
-            "blue",
-        ),
-        ("json_kb1", "JSON KB1", "orange"),
-        ("json_kb2", "JSON KB2", "darkred"),
-    ]
-
-    x = np.arange(len(labels))
-    width = 0.18
-
-    figure_width = max(
-        8,
-        len(labels) * 2.2,
-    )
-
-    fig, ax = plt.subplots(
-        figsize=(figure_width, 5.5)
-    )
-
-    for i, (
-        configuration_key,
-        display_name,
-        color,
-    ) in enumerate(configurations):
-        values = []
-
-        for report, report_file in zip(
-            reports,
-            report_files,
-        ):
-            report_configurations = report.get(
-                "configurations"
-            )
-
-            if not isinstance(
-                report_configurations,
-                dict,
-            ):
-                raise ValueError(
-                    "Missing 'configurations' object "
-                    f"in report: {report_file}"
-                )
-
-            if (
-                configuration_key
-                not in report_configurations
-            ):
-                raise ValueError(
-                    f"Missing configuration "
-                    f"{configuration_key!r} in report: "
-                    f"{report_file}"
-                )
-
-            configuration_results = (
-                report_configurations[
-                    configuration_key
-                ]
-            )
-
-            if metric_name not in configuration_results:
-                raise ValueError(
-                    f"Metric {metric_name!r} is missing "
-                    f"for {configuration_key!r} "
-                    f"in report: {report_file}"
-                )
-
-            values.append(
-                float(
-                    configuration_results[
-                        metric_name
-                    ]
-                )
-            )
-
-        offset = (
-            i - (len(configurations) - 1) / 2
-        ) * width
-
-        bars = ax.bar(
-            x + offset,
-            values,
-            width,
-            label=display_name,
-            color=color,
-        )
-
-        ax.bar_label(
-            bars,
-            fmt="%.3f",
-            padding=3,
-            fontsize=8,
-        )
-
-    ax.set_ylabel(metric_name)
-
-    ax.set_title(
-        f"Performance by query type: {metric_name}"
-    )
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(
-        labels,
-        rotation=15 if len(labels) > 3 else 0,
-        ha="right" if len(labels) > 3 else "center",
-    )
-
-    if metric_name.startswith("exact"):
-        ax.set_ylim(0.1, 1.05)
-    else:
-        ax.set_ylim(0.5, 1.05)
-
-    ax.grid(
-        axis="y",
-        linestyle="--",
-        alpha=0.35,
-    )
-
-    ax.legend()
-
-    fig.tight_layout()
-    plt.show()
 
 
 def run_oracle_experiment_kb1_kb2():
@@ -2265,161 +1609,61 @@ def run_oracle_experiment_query_type(
 
     return output_files
 
-# -------------------------
-# Main
-# -------------------------
 
-def main():
-    use_kb_2 = False
-
-    if use_kb_2:
-        details_dir = DETAILS_DIR_KB2
-        final_reports_dir = FINAL_REPORTS_DIR_KB2
-        json_dir = JSON_KB2_DIR
-    else:
-        details_dir = DETAILS_DIR_KB1
-        final_reports_dir = FINAL_REPORTS_DIR_KB1
-        json_dir = JSON_KB1_DIR
-
-    os.makedirs(details_dir, exist_ok=True)
-    os.makedirs(final_reports_dir, exist_ok=True)
-
-    if not Path(QUERIES_FILE).exists():
-        raise FileNotFoundError(f"Queries file not found: {QUERIES_FILE}")
-
-    if not Path(json_dir).exists():
-        raise FileNotFoundError(f"JSON KB directory not found: {json_dir}")
-
-    if not Path(RAW_TEXT_DIR).exists():
-        raise FileNotFoundError(f"Raw text directory not found: {RAW_TEXT_DIR}")
-
-    queries = load_json_file(QUERIES_FILE)
-    #queries = _filter_queries_by_rarity(queries, rarity="common")
-
-    print(f"Queries loaded: {len(queries)}")
-    print(f"Raw text directory: {RAW_TEXT_DIR}")
-    if use_kb_2:
-        print(f"Using JSON KB v2 directory: {JSON_KB2_DIR}")
-    else:
-        print(f"Using JSON KB v1 directory: {JSON_KB1_DIR}")
-    
-    print("Loading LLM...")
-    llm = load_llm()
-
-    experiment_types = [
-        "baseline",
-        "json_augmented",
-        "raw_text_augmented"
-    ]
-
-    results_by_experiment = {
-        experiment_type: []
-        for experiment_type in experiment_types
-    }
-
-    for query_data in queries:
-        query_id = query_data["query_id"]
-        all_battles = get_all_battle_names(query_data)
-
-        print(f"\nRunning query {query_id}")
-        print(f"Candidate battles: {len(all_battles)}")
-        print("Candidate battle names:")
-        for battle in all_battles:
-            print(f"  - {battle}")
-
-        for experiment_type in experiment_types:
-            print(f"  Running {experiment_type}...")
-
-            output_file = os.path.join(
-                details_dir,
-                f"{query_id}_{experiment_type}_answer.json"
-            )
-
-            try:
-                result = run_single_experiment(
-                    llm=llm,
-                    experiment_type=experiment_type,
-                    query_data=query_data,
-                    output_file=output_file,
-                    json_dir=json_dir
-                )
-
-            except Exception as e:
-                result = build_run_error_result(
-                    experiment_type=experiment_type,
-                    query_data=query_data,
-                    error=e
-                )
-
-                save_json_to_file(result, output_file)
-
-            results_by_experiment[experiment_type].append(result)
-
-            metrics = result["metrics"]
-            print(
-                f"    P={metrics['precision']:.4f} "
-                f"R={metrics['recall']:.4f} "
-                f"F1={metrics['f1']:.4f} "
-                f"EM={metrics['exact_match']}"
-            )
-
-            if metrics.get("run_error") is not None:
-                print(f"    Run error: {metrics['run_error']}")
-
-            if metrics.get("parse_error") is not None:
-                print(f"    Parse error: {metrics['parse_error']}")
-
-    final_reports = {}
-
-    for experiment_type, results in results_by_experiment.items():
-        report = build_final_report(results)
-        final_reports[experiment_type] = report
-
-        report_file = os.path.join(
-            final_reports_dir,
-            f"{experiment_type}_final_report.json"
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run oracle-context generation experiments comparing "
+            "Baseline, Raw Text, JSON KB1, and JSON KB2."
         )
-
-        save_json_to_file(report, report_file)
-        print_final_report(experiment_type, report)
-
-    comparison_report = build_comparison_report(final_reports)
-
-    save_json_to_file(
-        comparison_report,
-        os.path.join(final_reports_dir, "comparison_final_report.json")
     )
 
-    print("\nDone.")
-    print(f"Detailed answers saved to: {details_dir}")
-    print(f"Final reports saved to: {final_reports_dir}")
+    parser.add_argument(
+        "--experiment",
+        choices=[
+            "overall",
+            "rarity",
+            "difficulty",
+            "query-type",
+        ],
+        default="overall",
+        help=(
+            "Experiment to run: overall comparison, common-vs-rare, "
+            "difficulty slices, or query-type slices."
+        ),
+    )
+
+    parser.add_argument(
+        "--types",
+        nargs="*",
+        default=None,
+        help=(
+            "Optional query-type labels for --experiment query-type. "
+            "If omitted, all supported query types are evaluated."
+        ),
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    if args.experiment == "overall":
+        run_oracle_experiment_kb1_kb2()
+
+    elif args.experiment == "rarity":
+        run_oracle_experiment_common_rare()
+
+    elif args.experiment == "difficulty":
+        run_oracle_experiment_difficulty()
+
+    elif args.experiment == "query-type":
+        run_oracle_experiment_query_type(
+            labels=args.types,
+        )
 
 
 if __name__ == "__main__":
-    #run_oracle_experiment_kb1_kb2()
-    #plot_metric_kb1_kb2(metric_name="precision")
-    #run_oracle_experiment_common_rare()
-    #plot_metric_common_rare(metric_name="precision")
-    #run_oracle_experiment_difficulty()
-    #plot_metric_difficulty(metric_name="precision")
-    #run_oracle_experiment_query_type()
-    plot_metric_query_type(metric_name="precision", labels=[
-        "Weapon / Unit-related",
-        "Narrative / Tactical",
-        "Similarity",
-        "Outcome-related"])
-    plot_metric_query_type(metric_name="recall", labels=[
-        "Weapon / Unit-related",
-        "Narrative / Tactical",
-        "Similarity",
-        "Outcome-related"])
-    plot_metric_query_type(metric_name="f1", labels=[
-        "Weapon / Unit-related",
-        "Narrative / Tactical",
-        "Similarity",
-        "Outcome-related"])
-    plot_metric_query_type(metric_name="exact_match", labels=[
-        "Weapon / Unit-related",
-        "Narrative / Tactical",
-        "Similarity",
-        "Outcome-related"])
+    main()
+

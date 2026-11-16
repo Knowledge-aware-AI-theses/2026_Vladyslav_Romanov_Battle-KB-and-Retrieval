@@ -39,3 +39,41 @@ Metrics include:
 - nDCG@10
 
 Results are saved to results/retrieval/
+
+## Running oracle-generation experiments
+
+Run all commands from the project root.
+
+The experiment compares four configurations:
+
+- Baseline LLM
+- Raw-text-augmented LLM
+- JSON KB1
+- JSON KB2
+
+The required inputs are:
+
+- `data/queries/queries_all.json`
+- `data/json_kb_v1/`
+- `data/json_kb_v2/`
+- `data/extracted_wikipedia_raw/`
+
+An API key for the configured LLM must also be available through the project environment.
+
+### Running Experiments
+
+```bash
+python -m src.experiments.oracle_generation_experiment --experiment overall
+python -m src.experiments.oracle_generation_experiment --experiment rarity
+python -m src.experiments.oracle_generation_experiment --experiment difficulty
+python -m src.experiments.oracle_generation_experiment --experiment query-type
+```
+
+Select specific query-types
+```bash
+python -m src.experiments.oracle_generation_experiment \
+  --experiment query-type \
+  --types "Similarity" "Outcome-related"
+  ```
+
+Resuls are saved to results/oracle_generation/
