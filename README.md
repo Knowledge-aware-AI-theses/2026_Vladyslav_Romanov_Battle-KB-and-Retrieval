@@ -1,3 +1,45 @@
+## Reproducing the experiments
+
+Steps to reproduce the experiments:
+
+1. Clone the repository and install the required dependencies from `requirements.txt`.
+2. Build the FAISS dense indexes for both KB1 and KB2 using `Qwen/Qwen3-Embedding-4B`.
+3. Run experiment pipelines:
+   - Retrieval
+   - Oracle generation
+   - End-to-end RAG
+
+All commands should be executed from the project root directory.
+
+## Build the FAISS dense index
+
+Before running retrieval or end-to-end RAG experiments, build the FAISS dense index for the corresponding knowledge base.
+The dense retriever uses `Qwen/Qwen3-Embedding-4B` to embed the battle JSON records.
+Run the commands from the project root.
+
+### KB1
+
+```bash
+python -c "from src.retrieval.retrieval_dense import create_index; create_index(use_kb_2=False)"
+```
+
+Result:
+```bash
+data/dense_index/qwen3_embedding_4b_kb1.index
+data/dense_index/doc_mapping_kb1.json
+```
+
+### KB2
+```bash
+python -c "from src.retrieval.retrieval_dense import create_index; create_index(use_kb_2=True)"
+```
+
+Result:
+```bash
+data/dense_index/qwen3_embedding_4b_kb2.index
+data/dense_index/doc_mapping_kb2.json
+```
+
 ## Running retrieval experiments
 
 Run all commands from the project root.
@@ -97,6 +139,7 @@ python -m src.experiments.e2e_rag_experiments --type baseline --slice all
 python -m src.experiments.e2e_rag_experiments --type raw-text --top-k 20 --slice all
 python -m src.experiments.e2e_rag_experiments --type json --top-k 20 --slice rare
 python -m src.experiments.e2e_rag_experiments --type json --top-k 20 --slice narrative
+```
 
 Available slices:
 all, common, rare, participant, similarity, narrative, temporal, spatial, outcome, weapon
