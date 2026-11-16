@@ -77,3 +77,28 @@ python -m src.experiments.oracle_generation_experiment \
   ```
 
 Resuls are saved to results/oracle_generation/
+
+## End-to-end RAG experiments
+
+Run commands from the project root.
+
+The experiment compares three generation settings:
+
+- `baseline` — LLM without retrieved context
+- `raw-text` — LLM with retrieved Wikipedia text
+- `json` — LLM with retrieved JSON battle records
+
+Hybrid retrieval results are used for the context-based settings.
+
+### Examples
+
+```bash
+python -m src.experiments.e2e_rag_experiments --type baseline --slice all
+python -m src.experiments.e2e_rag_experiments --type raw-text --top-k 20 --slice all
+python -m src.experiments.e2e_rag_experiments --type json --top-k 20 --slice rare
+python -m src.experiments.e2e_rag_experiments --type json --top-k 20 --slice narrative
+
+Available slices:
+all, common, rare, participant, similarity, narrative, temporal, spatial, outcome, weapon
+
+Results are saved under results/e2e_rag/
