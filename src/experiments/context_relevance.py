@@ -5,7 +5,7 @@ from typing import Any
 
 from matplotlib import pyplot as plt
 
-from llm import generate_answer, load_llm
+from src.utils.llm import generate_answer, load_llm
 
 
 JSON_DETAILS_DIR = Path(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from pathlib import Path
@@ -8,44 +9,26 @@ from typing import Any, Literal
 from matplotlib import pyplot as plt
 import numpy as np
 
-from retrieval_bm25 import (
+from src.retrieval.retrieval_bm25 import (
     load_json_battles,
     build_bm25_index,
     retrieve_bm25,
 )
 
-from retrieval_dense import (
+from src.retrieval.retrieval_dense import (
     load_embedding_model,
     load_dense_index,
     dense_search,
 )
 
-from retrieval_hybrid import reciprocal_rank_fusion 
+from src.retrieval.retrieval_hybrid import reciprocal_rank_fusion 
 
 QUERIES_FILE = Path(
     "data/queries/queries_all.json"
 )
 
-REPORT_FILE_KB1 = Path(
-    "data/evaluation/retrieval_experiment_report_kb1.json"
-)
-
-REPORT_FILE_KB2 = Path(
-    "data/evaluation/retrieval_experiment_report_kb2.json"
-)
-
-AVERAGE_METRICS_FILE_KB1 = Path(
-    "data/evaluation/retrieval_experiment_average_metrics_kb1.json"
-)
-
-AVERAGE_METRICS_FILE_KB2 = Path(
-    "data/evaluation/retrieval_experiment_average_metrics_kb2.json"
-)
-
-
 CANDIDATE_K = 100
 HYBRID_TOP_K = 50
-
 
 def _filter_queries_by_rarity(
     queries: list[dict[str, Any]],
@@ -446,7 +429,7 @@ def single_query_retrieval_report(
 
 def save_retrieval_report(
     reports: list[dict[str, Any]],
-    output_file: Path = REPORT_FILE_KB1,
+    output_file: Path,
 ) -> None:
     """
     Save all completed query reports.
@@ -618,199 +601,6 @@ def calculate_average_metrics(
     }
 
 
-def plot_metric_query_type(
-        metric_name: str,
-        results_weapon_file: Path = Path("data/evaluation/retrieval_experiment_average_metrics_weapon.json"),
-        results_outcome_file: Path = Path("data/evaluation/retrieval_experiment_average_metrics_outcome.json"),
-        results_narrative_file: Path = Path("data/evaluation/retrieval_experiment_average_metrics_narrative.json"),
-) -> None:
-    """Plot a selected retrieval metric for BM25, dense, and hybrid
-    across different query types.
-    """
-
-    # Load results
-    with results_weapon_file.open("r", encoding="utf-8") as f:
-        weapon_results = json.load(f)
-
-    with results_outcome_file.open("r", encoding="utf-8") as f:
-        outcome_results = json.load(f)
-
-    with results_narrative_file.open("r", encoding="utf-8") as f:
-        narrative_results = json.load(f)
-
-    labels = ["Weapon / Unit-related", "Outcome-related", "Narrative / Tactical"]
-    methods = ["bm25", "dense", "hybrid"]
-
-    results = [
-        weapon_results,
-        outcome_results,
-        narrative_results,
-    ]
-
-    x = np.arange(len(labels))
-    width = 0.24
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-
-    for i, method in enumerate(methods):
-        values = [
-            result[method][metric_name]
-            for result in results
-        ]
-
-        ax.bar(
-            x + (i - 1) * width,
-            values,
-            width,
-            label=method.upper() if method == "bm25" else method.capitalize(),
-        )
-
-    ax.set_ylabel(metric_name)
-    ax.set_xlabel("Query Type")
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-
-    # Same y-axis logic as before
-    if metric_name.startswith("Recall"):
-        ylim_start = 0.3
-        ylim_end = 0.9
-    else:
-        ylim_start = 0.1
-        ylim_end = 0.8
-
-    ax.set_ylim(ylim_start, ylim_end)
-
-    ax.legend()
-    ax.grid(axis="y", alpha=0.25)
-
-    fig.tight_layout()
-    plt.show()
-
-
-
-def plot_metric_three_files(
-    metric_name: str,
-    easy_file: Path = Path("data/evaluation/retrieval_experiment_average_metrics_easy.json"),
-    medium_file: Path = Path("data/evaluation/retrieval_experiment_average_metrics_medium.json"),
-    hard_file: Path = Path("data/evaluation/retrieval_experiment_average_metrics_hard.json"),
-) -> None:
-    """Plot a selected retrieval metric for BM25, dense, and hybrid
-    across easy, medium, and hard queries.
-    """
-
-    # Load results
-    with easy_file.open("r", encoding="utf-8") as f:
-        easy_results = json.load(f)
-
-    with medium_file.open("r", encoding="utf-8") as f:
-        medium_results = json.load(f)
-
-    with hard_file.open("r", encoding="utf-8") as f:
-        hard_results = json.load(f)
-
-    labels = ["Easy", "Medium", "Hard"]
-    methods = ["bm25", "dense", "hybrid"]
-
-    results = [
-        easy_results,
-        medium_results,
-        hard_results,
-    ]
-
-    x = np.arange(len(labels))
-    width = 0.22
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    for i, method in enumerate(methods):
-        values = [
-            result[method][metric_name]
-            for result in results
-        ]
-
-        ax.bar(
-            x + (i - 1) * width,
-            values,
-            width,
-            label=method.upper() if method == "bm25" else method.capitalize(),
-        )
-
-    ax.set_ylabel(metric_name)
-    ax.set_xlabel("Query Difficulty")
-
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-
-    # Same y-axis logic as before
-    if metric_name.startswith("Recall"):
-        ylim_start = 0.4
-        ylim_end = 1.0
-    else:
-        ylim_start = 0.2
-        ylim_end = 0.9
-
-    ax.set_ylim(ylim_start, ylim_end)
-
-    ax.legend()
-    ax.grid(axis="y", alpha=0.25)
-
-    fig.tight_layout()
-    plt.show()
-
-
-def plot_metric(
-    metric_name: str,
-    file1: Path = AVERAGE_METRICS_FILE_KB1,
-    #file2: Path = AVERAGE_METRICS_FILE_KB2,
-) -> None:
-    """Plot a selected retrieval metric for BM25, dense, and hybrid."""
-
-    with file1.open("r", encoding="utf-8") as f:
-        kb1_results = json.load(f)
-
-    #with file2.open("r", encoding="utf-8") as f:
-    #    kb2_results = json.load(f)
-
-    labels = ["similarity"]
-    methods = ["bm25", "dense", "hybrid"]
-
-    x = np.arange(len(labels))
-    width = 0.2
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-
-    for i, method in enumerate(methods):
-        values = [
-            kb1_results[method][metric_name],
-            #kb2_results[method][metric_name],
-        ]
-
-        ax.bar(
-            x + (i - 1) * width,
-            values,
-            width,
-            label=method,
-        )
-
-    ax.set_ylabel(metric_name)
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-
-    if metric_name.startswith("Recall"):
-        ylim_start = 0
-        ylim_end = 0.6
-    else:
-        ylim_start = 0
-        ylim_end = 0.4
-
-    ax.set_ylim(ylim_start, ylim_end)
-    ax.legend()
-
-    fig.tight_layout()
-    plt.show()
-
-
 def main() -> None:
     """
     Run all retrieval experiments.
@@ -827,21 +617,21 @@ def main() -> None:
         Hybrid RRF top_k = 50
     """
 
-    queries = load_queries()[:1]
-    # queries = _filter_queries_by_rarity(
-    #     queries=queries,
-    #     rarity="common", # or rare
-    # )
-    # queries = _filter_queries_by_difficulty(
-    #     queries=queries,
-    #     difficulty="hard", # or easy, medium, hard
-    # )
-    # queries = _filter_queries_by_type(
-    #     queries=queries,
-    #     query_type="Similarity", # or Participant-related, Similarity, Narrative / Tactical, Temporal, Spatial / Terrain, Outcome-related, Weapon / Unit-related
-    # )
+    args = parse_args()
 
-    use_kb_2 = True
+    use_kb_2 = args.kb == 2
+    slice_name = args.slice
+
+    queries = load_queries()
+    queries = apply_query_slice(
+        queries=queries,
+        slice_name=slice_name,
+    )
+
+    report_file, average_metrics_file = get_output_files(
+        use_kb_2=use_kb_2,
+        slice_name=slice_name,
+    )
 
     print(
         f"Using knowledge base: "
@@ -849,10 +639,17 @@ def main() -> None:
     )
 
     print(
-        f"Loaded evaluation queries: "
-        f"{len(queries)}"
+        f"Query slice: {slice_name}"
     )
 
+    print(
+        f"Loaded evaluation queries: {len(queries)}"
+    )
+
+    if not queries:
+        raise ValueError(
+            f"No queries found for slice '{slice_name}'."
+        )
     # -------------------------------------------------
     # Initialize BM25 once
     # -------------------------------------------------
@@ -940,13 +737,6 @@ def main() -> None:
             query_report
         )
 
-        if use_kb_2:
-            report_file = REPORT_FILE_KB2
-            average_metrics_file = AVERAGE_METRICS_FILE_KB2
-        else:
-            report_file = REPORT_FILE_KB1
-            average_metrics_file = AVERAGE_METRICS_FILE_KB1
-
         # Save after each completed query.
         save_retrieval_report(all_reports, output_file=report_file)
 
@@ -1001,18 +791,105 @@ def main() -> None:
         )
 
 
+def apply_query_slice(
+    queries: list[dict[str, Any]],
+    slice_name: str,
+) -> list[dict[str, Any]]:
+
+    if slice_name == "all":
+        return queries
+
+    if slice_name in {"common", "rare"}:
+        return _filter_queries_by_rarity(
+            queries=queries,
+            rarity=slice_name,
+        )
+
+    if slice_name in {"easy", "medium", "hard"}:
+        return _filter_queries_by_difficulty(
+            queries=queries,
+            difficulty=slice_name,
+        )
+
+    query_type_mapping = {
+        "participant": "Participant-related",
+        "similarity": "Similarity",
+        "narrative": "Narrative / Tactical",
+        "temporal": "Temporal",
+        "spatial": "Spatial / Terrain",
+        "outcome": "Outcome-related",
+        "weapon": "Weapon / Unit-related",
+    }
+
+    if slice_name in query_type_mapping:
+        return _filter_queries_by_type(
+            queries=queries,
+            query_type=query_type_mapping[slice_name],
+        )
+
+    raise ValueError(f"Unsupported slice: {slice_name}")
+
+
+def get_output_files(
+    use_kb_2: bool,
+    slice_name: str,
+) -> tuple[Path, Path]:
+
+    kb_label = "kb2" if use_kb_2 else "kb1"
+
+    if slice_name == "all":
+        suffix = kb_label
+    else:
+        suffix = f"{kb_label}_{slice_name}"
+
+    report_file = Path(
+        f"results/retrieval/retrieval_experiment_report_{suffix}.json"
+    )
+
+    average_metrics_file = Path(
+        f"results/retrieval/retrieval_experiment_average_metrics_{suffix}.json"
+    )
+
+    return report_file, average_metrics_file
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run retrieval experiments for BM25, dense, and hybrid retrieval."
+    )
+
+    parser.add_argument(
+        "--kb",
+        type=int,
+        choices=[1, 2],
+        default=2,
+        help="Knowledge base version to use: 1 or 2.",
+    )
+
+    parser.add_argument(
+        "--slice",
+        type=str,
+        choices=[
+            "all",
+            "common",
+            "rare",
+            "easy",
+            "medium",
+            "hard",
+            "participant",
+            "similarity",
+            "narrative",
+            "temporal",
+            "spatial",
+            "outcome",
+            "weapon",
+        ],
+        default="all",
+        help="Optional query subset to evaluate.",
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
     main()
-    # plot_metric(
-    #     "nDCG@10",
-    #     file1=Path("data/evaluation/retrieval_experiment_average_metrics_kb1.json"),
-    #     file2=Path("data/evaluation/retrieval_experiment_average_metrics_kb2.json")
-    # )
-    # plot_metric(
-    #     "nDCG@10",
-    #     file1=Path("data/evaluation/retrieval_experiment_average_metrics_common.json"),
-    #     file2=Path("data/evaluation/retrieval_experiment_average_metrics_rare.json")
-    # )
-    #plot_metric_three_files("MRR")
-    #plot_metric_query_type("Recall@10")
-    #plot_metric(file1=Path("data/evaluation/retrieval_experiment_average_metrics_similarity.json"), metric_name="nDCG@10")

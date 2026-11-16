@@ -7,7 +7,7 @@ from typing import Any
 import faiss
 import numpy as np
 
-from llm import load_llm
+from src.utils.llm import load_llm
 
 
 JSON_KB1_DIR = Path(

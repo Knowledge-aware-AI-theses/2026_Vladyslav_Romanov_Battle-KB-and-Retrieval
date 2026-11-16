@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from llm import load_llm, generate_answer
+from src.utils.llm import load_llm, generate_answer
 
 
 # ============================================================

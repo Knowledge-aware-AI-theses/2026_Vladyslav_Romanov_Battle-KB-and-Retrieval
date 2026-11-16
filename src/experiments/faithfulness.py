@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from llm import generate_answer, load_llm
+from src.utils.llm import generate_answer, load_llm
 
 
 JSON_DETAILS_DIR = Path(

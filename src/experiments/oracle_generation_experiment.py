@@ -14,7 +14,7 @@ from typing import Any, Literal
 from matplotlib import pyplot as plt
 import numpy as np
 
-from llm import load_llm, generate_answer
+from src.utils.llm import load_llm, generate_answer
 
 
 QUERIES_FILE = "data/queries/queries_all.json"

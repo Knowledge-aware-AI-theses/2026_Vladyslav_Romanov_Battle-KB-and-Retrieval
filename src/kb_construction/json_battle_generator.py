@@ -6,12 +6,12 @@ import re
 import time
 from pathlib import Path
 from typing import Any
-from llm import load_llm, generate_answer
-from prompts import build_json_generation_prompt
+from src.utils.llm import load_llm, generate_answer
+from src.utils.prompts import build_json_generation_prompt
 
 
 RAW_TEXT_DIR = Path("data/extracted_wikipedia_raw")
-OUTPUT_JSON_DIR = Path("data/json_battles")
+OUTPUT_JSON_DIR = Path("data/json_kb_v1")
 EMPTY_SCHEMA_FILE = Path("data/empty_schema.json")
 BATTLES_IDS_CSV = Path("data/wikidata_battles.csv")
 FAILED_LOG_FILE = Path("data/json_generation_failures.jsonl") 

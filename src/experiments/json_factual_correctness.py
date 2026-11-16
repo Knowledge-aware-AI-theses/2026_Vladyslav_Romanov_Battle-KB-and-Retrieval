@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from llm import generate_answer, load_llm
+from src.utils.llm import generate_answer, load_llm
 
 
 JSON_KB_DIR = Path("data/json_kb_v2")

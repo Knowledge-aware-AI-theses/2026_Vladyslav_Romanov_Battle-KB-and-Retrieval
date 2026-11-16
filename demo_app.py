@@ -2,14 +2,14 @@ import json
 import os
 import torch
 
-from llm import load_llm, generate_answer
-from prompts import (
+from src.utils.llm import load_llm, generate_answer
+from src.utils.prompts import (
     build_baseline_system_message,
     build_json_augmented_system_message,
     build_baseline_prompt,
     build_json_augmented_prompt
 )
-from evaluate_closed_set_metrics import evaluate_model_answer
+from src.evaluation.evaluate_closed_set_metrics import evaluate_model_answer
 
 RESULTS_DIR = "results"
 

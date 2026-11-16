@@ -9,7 +9,7 @@ from typing import Mapping
 from matplotlib.ticker import MaxNLocator
 
 import numpy as np
-from llm import generate_answer, load_llm
+from src.utils.llm import generate_answer, load_llm
 
 QUERIES_FILE = "data/queries/queries_all.json"
 RETRIEVED_DATA_DIR = "data/e2e_retrieved_data"
